@@ -1,0 +1,167 @@
+---
+title: 'Update Contact'
+api: 'PUT /api/v1/contacts/{contact_id}/update'
+description: 'Update an existing contact in your account'
+---
+
+# Update Contact
+
+Update an existing contact with the specified information.
+
+## Endpoint
+
+```
+PUT /api/v1/contacts/{contact_id}/update
+PATCH /api/v1/contacts/{contact_id}/update
+```
+
+Use `PUT` for a full update (replacing all fields) or `PATCH` for a partial update (only updating specified fields).
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_contacts` permission.
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `contact_id` | integer | Yes | The ID of the contact to update |
+
+## Request Body
+
+The request body can include any of the fields available when creating a contact. Only the fields you include will be updated when using `PATCH`.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `first_name` | string | No | First name of the contact |
+| `last_name` | string | No | Last name of the contact |
+| `email` | string | No | Email address of the contact |
+| `company` | string | No | Company or organization name |
+| `website` | string | No | Company or personal website URL |
+| `address` | string | No | Street address |
+| `city` | string | No | City |
+| `state` | string | No | State or province |
+| `zip_code` | string | No | Postal or ZIP code |
+| `country` | string | No | Country |
+| `status` | string | No | Contact status |
+| `stage` | string | No | Contact stage |
+| `team_id` | integer | No | ID of the team to assign the contact to |
+| `tags` | array | No | Array of tag names (replaces existing tags) |
+| `phone_numbers` | array | No | Array of phone number objects |
+| `custom_context` | object | No | Custom fields and data |
+| `industry_context` | object | No | Industry-specific information |
+
+### Phone Number Object for Updates
+
+When updating phone numbers, you can include the `id` to update existing numbers:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | integer | No | ID of an existing phone number (for updates) |
+| `phone_number` | string | Yes | Phone number in E.164 format |
+| `phone_type` | string | No | Type of phone (mobile, work, home, etc.) |
+| `primary` | boolean | No | Whether this is the primary phone number |
+| `do_not_call` | boolean | No | Whether this number is on the do not call list |
+
+### Example Request Body (PATCH)
+
+```json
+{
+  "email": "john.updated@example.com",
+  "status": "contacted",
+  "stage": "qualified_lead",
+  "tags": ["Qualified", "High Priority"],
+  "phone_numbers": [
+    {
+      "id": 456,
+      "primary": false
+    },
+    {
+      "phone_number": "+15553456789",
+      "phone_type": "home",
+      "primary": true
+    }
+  ],
+  "custom_context": {
+    "lead_source": "Referral",
+    "budget": "$10,000-$20,000"
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "id": 123,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john.updated@example.com",
+  "message": "Contact updated successfully"
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `invalid_json` | Invalid JSON payload |
+| 400 | `validation_error` | Validation error with details |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 403 | `team_access_denied` | You do not have access to this team |
+| 404 | `not_found` | Contact not found or you do not have access |
+| 404 | `team_not_found` | Team not found |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request (PATCH)
+
+```bash
+curl -X PATCH 'https://api.klen.ai/api/v1/contacts/123/update' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "status": "contacted",
+    "stage": "qualified_lead",
+    "tags": ["Qualified", "High Priority"]
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 123,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john.doe@example.com",
+  "message": "Contact updated successfully"
+}
+```
+
+## Notes on Update Behavior
+
+### PUT vs PATCH
+
+- `PUT` requests replace the entire contact object. Any fields not included in the request will be set to their default values or `null`.
+- `PATCH` requests only update the fields included in the request. Existing fields not mentioned in the request remain unchanged.
+
+### Phone Numbers
+
+- When using `PUT`, all existing phone numbers will be deleted and replaced with those in the request.
+- When using `PATCH`:
+  - Phone numbers with an `id` will be updated if they exist.
+  - Phone numbers without an `id` will be added as new numbers.
+  - Existing phone numbers not referenced in the request remain unchanged.
+
+### Tags
+
+- The `tags` array completely replaces the existing tags for both `PUT` and `PATCH` requests.
+
+### Custom and Industry Context
+
+- When using `PUT`, the entire context object is replaced.
+- When using `PATCH`, the context objects are merged with existing data, with new values overwriting old ones for the same keys.

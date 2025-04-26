@@ -1,33 +1,67 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Reference documentation for the Klen AI API'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+# Klen AI API Reference
 
-## Welcome
+Welcome to the Klen AI API documentation. Our API allows you to programmatically interact with your AI agents, manage calls, contacts, calendar events, and more.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+All API requests should be made to:
+
+```
+https://api.klen.ai/api/v1/
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+The Klen AI API uses API keys for authentication. You'll need to include your API key in the headers of all requests. 
 
+See the [Authentication](/api-reference/authentication) page for more details on how to authenticate your requests.
+
+## Rate Limiting
+
+API requests are limited based on your plan. Rate limits are applied on a per-minute and per-day basis for certain endpoints.
+
+- Standard API keys: 60 requests per minute, 100 calls per day
+- Partner API keys: Higher limits based on partnership agreement
+
+## Response Format
+
+All API responses are returned in JSON format. Successful responses will have a 2xx status code, while errors will return an appropriate error code along with an error message.
+
+Example success response:
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "id": "call_123456",
+  "status": "completed",
+  "duration_seconds": 120,
+  // Additional response fields...
+}
 ```
+
+Example error response:
+```json
+{
+  "error": "invalid_key",
+  "message": "Invalid or inactive API key"
+}
+```
+
+## Available Endpoints
+
+Our API is organized around REST principles. It uses standard HTTP response codes, authentication, and verbs.
+
+Explore the following sections for detailed documentation on specific endpoints:
+
+- [Calls](/api-reference/calls/get-calls) - Manage and retrieve call data
+- [Agents](/api-reference/agents/get-agents) - Access your AI agents
+- [Contacts](/api-reference/contacts/get-contacts) - Manage your contacts
+- [Calendar](/api-reference/calendar/overview) - Manage events and availability
+- [Webhooks](/api-reference/webhooks/overview) - Set up and manage webhooks for real-time events
+
+## Need Help?
+
+If you have any questions or need assistance with our API, please contact our support team at [support@klen.ai](mailto:support@klen.ai).

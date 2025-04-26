@@ -1,0 +1,111 @@
+---
+title: 'Get Calls'
+api: 'GET /api/v1/calls'
+description: 'Retrieve a list of calls with filtering options'
+---
+
+# Get Calls
+
+Retrieve a paginated list of calls with various filtering options.
+
+## Endpoint
+
+```
+GET /api/v1/calls
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_calls` permission.
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `agent_id` | string | No | Filter by agent ID or assistant ID |
+| `status` | string | No | Filter by call status (completed, failed, in-progress) |
+| `type` | string | No | Filter by call type (inbound, outbound) |
+| `page` | integer | No | Page number for pagination (default: 1) |
+| `limit` | integer | No | Number of results per page (default: 10, max: 100) |
+
+## Response
+
+```json
+{
+  "count": 42,         // Total number of calls matching the criteria
+  "page": 1,           // Current page
+  "limit": 10,         // Results per page
+  "pages": 5,          // Total number of pages
+  "calls": [
+    {
+      "id": "klen_call_id",
+      "agent_id": "klen_assistant_id",
+      "agent_name": "Sales Representative",
+      "status": "completed",
+      "type": "outbound",
+      "phone_number": "+15551234567",
+      "started_at": "2025-04-23T14:30:45Z",
+      "ended_at": "2025-04-23T14:35:12Z",
+      "duration_seconds": 267,
+      "summary": "Brief summary of the call content...",
+      "recording_url": "https://storage.example.com/recordings/call_id.mp3",
+      "contact": {
+        "id": 123,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "company": "Acme Corp"
+      }
+    },
+    // Additional call objects...
+  ]
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calls?agent_id=12345&type=outbound&page=1&limit=25' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+```json
+{
+  "count": 42,
+  "page": 1,
+  "limit": 25,
+  "pages": 2,
+  "calls": [
+    {
+      "id": "call_6789",
+      "agent_id": "assistant_12345",
+      "agent_name": "Sales Representative",
+      "status": "completed",
+      "type": "outbound",
+      "phone_number": "+15551234567",
+      "started_at": "2025-04-23T14:30:45Z",
+      "ended_at": "2025-04-23T14:35:12Z",
+      "duration_seconds": 267,
+      "summary": "The agent discussed product pricing with the customer and answered questions about delivery times. The customer expressed interest in the premium package.",
+      "recording_url": "https://storage.example.com/recordings/call_6789.mp3",
+      "contact": {
+        "id": 123,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "company": "Acme Corp"
+      }
+    },
+    // Additional call objects...
+  ]
+}
+```

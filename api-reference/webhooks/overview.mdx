@@ -1,0 +1,283 @@
+---
+title: 'Webhooks Overview'
+description: 'Introduction to Klen AI webhooks for real-time event notifications'
+---
+
+# Webhooks Overview
+
+Webhooks allow you to receive real-time notifications when events occur in your Klen AI account. Instead of polling our API, your server can be notified automatically when events like calls, transcripts, recordings, or calendar events become available.
+
+## How Webhooks Work
+
+1. You create a webhook endpoint on your server that can receive HTTP POST requests.
+2. You register this endpoint URL with Klen AI and specify which events you want to subscribe to.
+3. When an event occurs in your account, Klen AI sends an HTTP POST request to your endpoint with event data in JSON format.
+4. Your server processes the incoming webhook data and takes appropriate actions.
+
+## Creating a Webhook Endpoint
+
+### From the Dashboard
+
+1. Log in to your [Klen AI dashboard](https://app.klen.ai)
+2. Navigate to API > Webhooks
+3. Click "Create New Webhook"
+4. Enter a name, your endpoint URL, and select the events you want to subscribe to
+5. Copy the generated secret for signature verification
+
+### Via the API
+
+You can also create webhooks programmatically via our API:
+
+```bash
+curl -X POST 'https://api.klen.ai/api/webhooks/create/' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Call Events Webhook",
+    "url": "https://example.com/webhooks/klen",
+    "subscribed_events": ["call.started", "call.ended", "call.transcript"]
+  }'
+```
+
+## Available Events
+
+### Call Events
+
+| Event Name | Description |
+|------------|-------------|
+| `call.started` | Triggered when a call begins |
+| `call.ended` | Triggered when a call ends |
+| `call.failed` | Triggered when a call fails to connect |
+| `call.transcript` | Triggered when a call transcript becomes available |
+| `call.recording` | Triggered when a call recording becomes available |
+| `call.summary` | Triggered when a call summary becomes available |
+
+### Calendar Events
+
+| Event Name | Description |
+|------------|-------------|
+| `calendar.created` | Triggered when a calendar event is created |
+| `calendar.updated` | Triggered when a calendar event is updated |
+| `calendar.cancelled` | Triggered when a calendar event is cancelled |
+| `calendar.completed` | Triggered when a calendar event is completed |
+| `calendar.reminder` | Triggered when a reminder for a calendar event is sent |
+
+## Webhook Payload Structure
+
+### Call Event Payload
+
+Call event webhooks follow this general structure:
+
+```json
+{
+  "event_type": "call.ended",
+  "call": {
+    "id": 123,
+    "klen_call_id": "call_abc123",
+    "agent_id": 456,
+    "agent_name": "Customer Support",
+    "status": "completed",
+    "type": "inbound",
+    "phone_number": "+15551234567",
+    "started_at": "2025-04-23T14:30:45Z",
+    "ended_at": "2025-04-23T14:35:12Z",
+    "duration_seconds": 267,
+    "recording_url": "https://storage.example.com/recordings/call_abc123.mp3",
+    "summary": "Call summary if available...",
+    "contact": {
+      "id": 789,
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    }
+  },
+  "timestamp": "2025-04-23T14:35:15Z"
+}
+```
+
+See [Call Events](/api-reference/webhooks/call-events) for call event-specific details.
+
+### Calendar Event Payload
+
+Calendar event webhooks follow this general structure:
+
+```json
+{
+  "event_type": "calendar.created",
+  "calendar_event": {
+    "id": 123,
+    "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "title": "Client Meeting",
+    "event_type": "meeting",
+    "status": "confirmed",
+    "start_time": "2025-05-01T14:00:00.000Z",
+    "end_time": "2025-05-01T15:00:00.000Z",
+    "duration_minutes": 60,
+    "location": "Conference Room A",
+    "has_video_conference": true,
+    "video_conference_url": "https://meet.google.com/abc-defg-hij",
+    "created_by_ai_agent": true,
+    "ai_agent": {
+      "id": 42,
+      "name": "Meeting Scheduler",
+      "assistant_id": "asst_01234567890"
+    },
+    "customer": {
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "phone": "+15551234567"
+    },
+    "ics_url": "/calendar/event/f47ac10b-58cc-4372-a567-0e02b2c3d479/calendar.ics"
+  },
+  "timestamp": "2025-05-01T10:15:30.000Z"
+}
+```
+
+See [Calendar Events](/api-reference/webhooks/calendar-events) for calendar event-specific details.
+
+## Verifying Webhook Signatures
+
+For security, we sign all webhook requests with a signature that you can verify to ensure the request came from Klen AI:
+
+1. When you create a webhook, you receive a secret.
+2. We include a signature in the `X-Klen-Signature` header of each webhook request.
+3. You can verify this signature by creating an HMAC-SHA256 hash of the request body using your webhook secret.
+
+Python example for verifying signatures:
+
+```python
+import hmac
+import hashlib
+
+def verify_webhook_signature(request_body, signature, webhook_secret):
+    computed_signature = hmac.new(
+        webhook_secret.encode('utf-8'),
+        request_body.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(computed_signature, signature)
+```
+
+## Handling Webhook Deliveries
+
+### Best Practices
+
+1. **Process webhooks asynchronously**: Respond quickly to the webhook request (with a 200 status code) and process the data in the background.
+
+2. **Implement idempotency**: Use the `X-Klen-Delivery-ID` header to ensure you don't process the same webhook multiple times.
+
+3. **Verify signatures**: Always verify the webhook signature to ensure the request came from Klen AI.
+
+4. **Handle timeouts**: We expect your endpoint to respond within 10 seconds. Process data asynchronously if needed.
+
+5. **Implement proper error handling**: If your endpoint fails to process a webhook, we'll retry with exponential backoff (1 minute, 5 minutes, 30 minutes).
+
+### Example Webhook Handler (Express.js)
+
+```javascript
+const express = require('express');
+const crypto = require('crypto');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhooks/klen', (req, res) => {
+  // Get the signature from the headers
+  const signature = req.headers['x-klen-signature'];
+  const deliveryId = req.headers['x-klen-delivery-id'];
+  const eventType = req.headers['x-klen-event'];
+  
+  // Verify the signature
+  const webhookSecret = 'your_webhook_secret';
+  const payload = JSON.stringify(req.body);
+  const computedSignature = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(payload)
+    .digest('hex');
+  
+  if (crypto.timingSafeEqual(
+    Buffer.from(computedSignature), 
+    Buffer.from(signature)
+  )) {
+    // Signature is valid, process the webhook
+    
+    // Always respond with a 200 status quickly
+    res.status(200).send('Webhook received');
+    
+    // Process the webhook data asynchronously
+    processWebhook(deliveryId, eventType, req.body);
+  } else {
+    // Invalid signature
+    res.status(401).send('Invalid signature');
+  }
+});
+
+// Process webhook data asynchronously
+function processWebhook(deliveryId, eventType, data) {
+  // Check if this webhook has already been processed
+  if (hasProcessedWebhook(deliveryId)) {
+    console.log(`Webhook ${deliveryId} already processed`);
+    return;
+  }
+  
+  // Process based on event type
+  switch (eventType) {
+    case 'call.started':
+      handleCallStarted(data);
+      break;
+    case 'call.ended':
+      handleCallEnded(data);
+      break;
+    case 'call.transcript':
+      handleCallTranscript(data);
+      break;
+    case 'calendar.created':
+      handleCalendarCreated(data);
+      break;
+    case 'calendar.updated':
+      handleCalendarUpdated(data);
+      break;
+    case 'calendar.cancelled':
+      handleCalendarCancelled(data);
+      break;
+    // Handle other event types...
+    default:
+      console.log(`Unknown event type: ${eventType}`);
+  }
+  
+  // Mark this webhook as processed
+  markWebhookAsProcessed(deliveryId);
+}
+
+app.listen(3000, () => {
+  console.log('Webhook server running on port 3000');
+});
+```
+
+## Retries and Failures
+
+If your endpoint fails to respond, Klen AI will retry the webhook delivery with the following schedule:
+
+1. First retry: After 1 minute
+2. Second retry: After 5 minutes
+3. Final retry: After 30 minutes
+
+If all retries fail, the webhook will be marked as failed. You can view failed webhook deliveries in your Klen AI dashboard.
+
+## Managing Webhooks
+
+You can view, update, and delete webhooks from your Klen AI dashboard or via our API:
+
+- List webhooks: `GET /api/v1/webhooks`
+- Get webhook details: `GET /api/v1/webhooks/{webhook_id}`
+- Delete webhook: `POST /api/v1/webhooks/{webhook_id}/delete`
+
+## Testing Webhooks
+
+We recommend using a tool like [Webhook.site](https://webhook.site) or [Requestbin](https://requestbin.com) for testing webhooks during development.
+
+Once you have your endpoint set up, you can trigger test events by making test calls or creating calendar events through your Klen AI dashboard.
+
+## Need Help?
+
+If you're having issues with webhooks, check the webhook delivery logs in your Klen AI dashboard or contact our support team at [support@klen.ai](mailto:support@klen.ai).

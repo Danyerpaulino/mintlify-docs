@@ -1,0 +1,131 @@
+---
+title: 'Get Agents'
+api: 'GET /api/v1/agents'
+description: 'Retrieve a list of AI agents that the user has access to'
+---
+
+# Get Agents
+
+Retrieve a list of AI agents that the user has access to.
+
+## Endpoint
+
+```
+GET /api/v1/agents
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_agents` permission.
+
+## Response
+
+```json
+{
+  "agents": [
+    {
+      "id": 123,
+      "assistant_id": "assistant_abc123",
+      "name": "Customer Support",
+      "role": "inbound agent",
+      "phone_number": "+15551234567",
+      "minutes_used": 345.5,
+      "total_calls": 78,
+      "model": "claude-3-opus-20240229",
+      "voice_id": "ember",
+      "can_make_calls": true,
+      "team_id": 456
+    },
+    {
+      "id": 789,
+      "assistant_id": "assistant_def456",
+      "name": "Sales Representative",
+      "role": "outbound agent",
+      "phone_number": "+15557654321",
+      "minutes_used": 512.25,
+      "total_calls": 132,
+      "model": "claude-3-sonnet-20240229",
+      "voice_id": "alloy",
+      "can_make_calls": true,
+      "team_id": 456
+    }
+    // Additional agent objects...
+  ]
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/agents' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+```json
+{
+  "agents": [
+    {
+      "id": 123,
+      "assistant_id": "assistant_abc123",
+      "name": "Customer Support",
+      "role": "inbound agent",
+      "phone_number": "+15551234567",
+      "minutes_used": 345.5,
+      "total_calls": 78,
+      "model": "claude-3-opus-20240229",
+      "voice_id": "ember",
+      "can_make_calls": true,
+      "team_id": 456
+    },
+    {
+      "id": 789,
+      "assistant_id": "assistant_def456",
+      "name": "Sales Representative",
+      "role": "outbound agent",
+      "phone_number": "+15557654321",
+      "minutes_used": 512.25,
+      "total_calls": 132,
+      "model": "claude-3-sonnet-20240229",
+      "voice_id": "alloy",
+      "can_make_calls": true,
+      "team_id": 456
+    }
+  ]
+}
+```
+
+## Response Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | integer | The database ID of the agent |
+| `assistant_id` | string | The klen assistant ID |
+| `name` | string | The name of the agent |
+| `role` | string | The role of the agent (inbound agent, outbound agent) |
+| `phone_number` | string | The phone number assigned to the agent (if any) |
+| `minutes_used` | number | Total minutes the agent has been used for calls |
+| `total_calls` | integer | Total number of calls the agent has handled |
+| `model` | string | The AI model used by the agent |
+| `voice_id` | string | The voice ID used by the agent |
+| `can_make_calls` | boolean | Whether the agent can make calls (has an assigned phone number) |
+| `team_id` | integer | The ID of the team the agent belongs to (if any) |
+
+## Access Control
+
+This endpoint returns all agents that the authenticated user has access to. This includes:
+
+1. Agents created by the user
+2. Agents belonging to teams that the user has access to
+
+If the user is a partner or client, they will only see agents associated with their account or accessible based on the partnership relationship.

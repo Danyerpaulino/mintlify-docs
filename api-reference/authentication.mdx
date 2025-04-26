@@ -1,0 +1,103 @@
+---
+title: 'Authentication'
+description: 'How to authenticate with the Klen AI API'
+---
+
+# Authentication
+
+The Klen AI API uses API keys to authenticate requests. You can view and manage your API keys from your Klen AI dashboard.
+
+## API Keys
+
+All API requests must include an API key in one of the following ways:
+
+### Bearer Token (Recommended)
+
+Send your API key as a Bearer token in the Authorization header:
+
+```bash
+Authorization: Bearer klen_abcdef123456789
+```
+
+### API Key Header
+
+Alternatively, you can use the X-API-Key header:
+
+```bash
+X-API-Key: klen_abcdef123456789
+```
+
+### Query Parameter
+
+For testing or simple applications, you can include your API key as a query parameter:
+
+```
+GET https://api.klen.ai/api/v1/calls?api_key=klen_abcdef123456789
+```
+
+> **Security Note**: Using query parameters is less secure as API keys may be logged in server access logs. Use the header methods for production applications.
+
+## Creating API Keys
+
+To create a new API key:
+
+1. Log in to your [Klen AI dashboard](https://app.klen.ai)
+2. Navigate to API > API Keys
+3. Click "Create New API Key"
+4. Give your key a name and select the appropriate permissions
+5. Click "Create Key"
+
+Make sure to copy and store your API key securely. For security reasons, you won't be able to view the full key again after creation.
+
+## API Key Permissions
+
+When creating an API key, you can grant specific permissions:
+
+| Permission | Description |
+|------------|-------------|
+| `can_read_calls` | Allows retrieving call information |
+| `can_initiate_calls` | Allows initiating new calls |
+| `can_read_agents` | Allows retrieving agent information |
+| `can_read_contacts` | Allows retrieving contact information |
+| `can_read_calendar` | Allows retrieving calendar events and availability |
+| `can_write_calendar` | Allows creating, updating, and canceling calendar events |
+
+
+## Rate Limiting
+
+API keys have rate limits applied:
+
+- `requests_per_minute_limit`: Maximum number of API requests per minute (default: 60)
+- `calls_per_day_limit`: Maximum number of calls that can be initiated per day (default: 100)
+- `calendar_events_per_day_limit`: Maximum number of calendar events that can be created per day (default: 50)
+
+If you exceed these limits, you'll receive a `429 Too Many Requests` response.
+
+## Key Security
+
+Keep your API keys secure:
+
+- Never share your API keys in publicly accessible areas like GitHub, client-side code, or exposed in your application.
+- Use different API keys for different environments (development, staging, production).
+- Periodically rotate your API keys to minimize the impact of potential leaks.
+
+## Revoking API Keys
+
+To revoke an API key:
+
+1. Log in to your [Klen AI dashboard](https://app.klen.ai)
+2. Navigate to API > API Keys
+3. Click the "Revoke" button next to the key you want to revoke
+
+Note that revoking a key is immediate and permanent. Any applications using the revoked key will lose access to the API.
+
+## Error Responses
+
+If you encounter authentication errors, you may see the following responses:
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 429 | `rate_limit_exceeded` | Rate limit has been exceeded |

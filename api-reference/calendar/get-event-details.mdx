@@ -1,0 +1,278 @@
+---
+title: 'Get Calendar Event Details'
+api: 'GET /api/v1/calendar/events/{event_id}'
+description: 'Retrieve detailed information about a specific calendar event'
+---
+
+Get detailed information about a specific calendar event.
+
+## Path Parameters
+
+<ParamField path="event_id" type="string" required>
+  ID or UUID of the event to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="integer">
+  Event ID.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Event UUID.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Event title.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Event description.
+</ResponseField>
+
+<ResponseField name="event_type" type="string">
+  Type of event. One of: `meeting`, `appointment`, `busy`, `voice_call`, `video_call`.
+</ResponseField>
+
+<ResponseField name="event_type_display" type="string">
+  Human-readable event type.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Event status. One of: `scheduled`, `confirmed`, `cancelled`, `completed`, `no_show`.
+</ResponseField>
+
+<ResponseField name="status_display" type="string">
+  Human-readable status.
+</ResponseField>
+
+<ResponseField name="start_time" type="string" format="ISO 8601">
+  Event start time.
+</ResponseField>
+
+<ResponseField name="end_time" type="string" format="ISO 8601">
+  Event end time.
+</ResponseField>
+
+<ResponseField name="duration_minutes" type="integer">
+  Event duration in minutes.
+</ResponseField>
+
+<ResponseField name="location" type="string">
+  Event location.
+</ResponseField>
+
+<ResponseField name="has_video_conference" type="boolean">
+  Whether the event has video conferencing enabled.
+</ResponseField>
+
+<ResponseField name="video_conference_url" type="string">
+  URL for video conferencing.
+</ResponseField>
+
+<ResponseField name="video_conference_provider" type="string">
+  Provider of video conferencing (e.g., Zoom, Google Meet, etc.).
+</ResponseField>
+
+<ResponseField name="created_by_ai_agent" type="boolean">
+  Whether the event was created by an AI agent.
+</ResponseField>
+
+<ResponseField name="is_reminder_enabled" type="boolean">
+  Whether reminders are enabled for this event.
+</ResponseField>
+
+<ResponseField name="remind_before_minutes" type="integer">
+  How many minutes before the event to send a reminder.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" format="ISO 8601">
+  When the event was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string" format="ISO 8601">
+  When the event was last updated.
+</ResponseField>
+
+<ResponseField name="customer" type="object">
+  Customer information.
+  
+  <Expandable title="Customer Details">
+    <ResponseField name="name" type="string">
+      Customer name.
+    </ResponseField>
+
+    <ResponseField name="email" type="string">
+      Customer email.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string">
+      Customer phone number.
+    </ResponseField>
+
+    <ResponseField name="notes" type="string">
+      Customer notes.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ai_agent" type="object">
+  AI agent information (if event was created by an agent).
+  
+  <Expandable title="AI Agent Details">
+    <ResponseField name="id" type="integer">
+      Agent ID.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      Agent name.
+    </ResponseField>
+
+    <ResponseField name="assistant_id" type="string">
+      Assistant ID from Vapi.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="team" type="object">
+  Team information.
+  
+  <Expandable title="Team Details">
+    <ResponseField name="id" type="integer">
+      Team ID.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      Team name.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="external_calendars" type="object">
+  External calendar IDs.
+  
+  <Expandable title="External Calendar Details">
+    <ResponseField name="google" type="string">
+      Google Calendar event ID.
+    </ResponseField>
+
+    <ResponseField name="outlook" type="string">
+      Outlook Calendar event ID.
+    </ResponseField>
+
+    <ResponseField name="gohighlevel" type="string">
+      GoHighLevel Calendar event ID.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ics_url" type="string">
+  URL to download ICS file for this event.
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calendar/events/123' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY'
+```
+
+Or using the UUID:
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calendar/events/f47ac10b-58cc-4372-a567-0e02b2c3d479' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY'
+```
+
+## Example Response
+
+```json
+{
+  "id": 123,
+  "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "title": "Client Meeting",
+  "description": "Discuss project requirements and timeline",
+  "event_type": "meeting",
+  "event_type_display": "Meeting",
+  "status": "confirmed",
+  "status_display": "Confirmed",
+  "start_time": "2025-05-01T14:00:00.000Z",
+  "end_time": "2025-05-01T15:00:00.000Z",
+  "duration_minutes": 60,
+  "location": "Conference Room A",
+  "has_video_conference": true,
+  "video_conference_url": "https://meet.google.com/abc-defg-hij",
+  "video_conference_provider": "Google Meet",
+  "created_by_ai_agent": true,
+  "is_reminder_enabled": true,
+  "remind_before_minutes": 30,
+  "created_at": "2025-04-25T10:15:30.000Z",
+  "updated_at": "2025-04-25T10:15:30.000Z",
+  "customer": {
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "phone": "+15551234567",
+    "notes": "Prefers afternoon meetings"
+  },
+  "ai_agent": {
+    "id": 42,
+    "name": "Meeting Scheduler",
+    "assistant_id": "asst_01234567890"
+  },
+  "team": {
+    "id": 5,
+    "name": "Sales Team"
+  },
+  "external_calendars": {
+    "google": "google_event_id_123",
+    "outlook": "outlook_event_id_456"
+  },
+  "ics_url": "/calendar/event/f47ac10b-58cc-4372-a567-0e02b2c3d479/calendar.ics"
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="string">
+  Error code.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message.
+</ResponseField>
+
+### Not Found (404)
+
+```json
+{
+  "error": "not_found",
+  "message": "Event not found or you do not have access"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "error": "authentication_required",
+  "message": "API key is required"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": "permission_denied",
+  "message": "This API key does not have can_read_calendar permission"
+}
+```
+
+### Server Error (500)
+
+```json
+{
+  "error": "server_error",
+  "message": "An unexpected server error occurred"
+}
+```

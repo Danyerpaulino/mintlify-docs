@@ -1,0 +1,160 @@
+---
+title: 'Get Contact Details'
+api: 'GET /api/v1/contacts/{contact_id}'
+description: 'Retrieve detailed information about a specific contact'
+---
+
+# Get Contact Details
+
+Retrieve detailed information about a specific contact by ID.
+
+## Endpoint
+
+```
+GET /api/v1/contacts/{contact_id}
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_contacts` permission.
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `contact_id` | integer | Yes | The ID of the contact to retrieve |
+
+## Response
+
+```json
+{
+  "id": 123,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john.doe@example.com",
+  "company": "Acme Corp",
+  "website": "https://acme.example.com",
+  "stage": "qualified_lead",
+  "stage_display": "Qualified Lead",
+  "status": "contacted",
+  "status_display": "Contacted",
+  "address": {
+    "street": "123 Main St",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip_code": "94105",
+    "country": "US"
+  },
+  "timezone": "America/Los_Angeles",
+  "created_date": "2025-03-15T10:30:00Z",
+  "last_call_date": "2025-04-22T14:15:30Z",
+  "phone_numbers": [
+    {
+      "id": 456,
+      "phone_number": "+15551234567",
+      "phone_type": "mobile",
+      "primary": true,
+      "do_not_call": false,
+      "dnc_date": null,
+      "dnc_reason": null
+    },
+    {
+      "id": 457,
+      "phone_number": "+15552345678",
+      "phone_type": "work",
+      "primary": false,
+      "do_not_call": false,
+      "dnc_date": null,
+      "dnc_reason": null
+    }
+  ],
+  "tags": ["VIP", "Interested", "Follow-up"],
+  "recent_notes": [
+    {
+      "id": 789,
+      "content": "Customer expressed interest in the premium package. Will follow up next week.",
+      "created_at": "2025-04-22T14:45:30Z",
+      "note_type": "call_note",
+      "call_result": "interested"
+    },
+    {
+      "id": 790,
+      "content": "Sent follow-up email with pricing details.",
+      "created_at": "2025-04-22T15:10:00Z",
+      "note_type": "activity",
+      "call_result": null
+    }
+  ],
+  "custom_context": {
+    "lead_source": "Website",
+    "budget": "$5,000-$10,000",
+    "decision_maker": true
+  },
+  "industry_context": {
+    "company_size": "50-250",
+    "industry_vertical": "Technology"
+  },
+  "team": {
+    "id": 101,
+    "name": "Sales Team"
+  },
+  "owner": {
+    "id": 202,
+    "username": "sales_rep",
+    "email": "sales_rep@example.com"
+  }
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 404 | `not_found` | Contact not found or you do not have access |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/contacts/123' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+The response includes comprehensive information about the contact, including personal details, communication history, custom context data, and ownership information as shown in the response schema above.
+
+## Response Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | integer | The database ID of the contact |
+| `first_name` | string | First name of the contact |
+| `last_name` | string | Last name of the contact |
+| `full_name` | string | Combined first and last name |
+| `email` | string | Email address of the contact |
+| `company` | string | Company or organization name |
+| `website` | string | Company or personal website URL |
+| `stage` | string | Current stage in the sales/contact pipeline |
+| `stage_display` | string | Human-readable stage name |
+| `status` | string | Current status of the contact |
+| `status_display` | string | Human-readable status name |
+| `address` | object | Physical address information |
+| `timezone` | string | Contact's timezone (IANA format) |
+| `created_date` | string | ISO 8601 date when the contact was created |
+| `last_call_date` | string | ISO 8601 date of the most recent call |
+| `phone_numbers` | array | List of phone numbers associated with the contact |
+| `tags` | array | Array of tag names associated with the contact |
+| `recent_notes` | array | List of recent notes about the contact |
+| `custom_context` | object | Custom fields and data specific to this contact |
+| `industry_context` | object | Industry-specific information |
+| `team` | object | Team information if the contact belongs to a team |
+| `owner` | object | User information for the contact owner |
+
+## Access Control
+
+This endpoint will only return contacts that the authenticated user has access to, either through direct ownership or team access permissions.

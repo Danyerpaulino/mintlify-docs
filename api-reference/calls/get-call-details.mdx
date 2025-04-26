@@ -1,0 +1,126 @@
+---
+title: 'Get Call Details'
+api: 'GET /api/v1/calls/{call_id}'
+description: 'Retrieve detailed information about a specific call'
+---
+
+# Get Call Details
+
+Retrieve detailed information about a specific call by ID.
+
+## Endpoint
+
+```
+GET /api/v1/calls/{call_id}
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_calls` permission.
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `call_id` | string | Yes | The ID of the call to retrieve. Can be either the database ID or the klen call_id |
+
+## Response
+
+```json
+{
+  "id": 123,
+  "agent": {
+    "id": 456,
+    "name": "Sales Representative",
+    "assistant_id": "assistant_abc123"
+  },
+  "call_id": "klen_call_id",
+  "status": "completed",
+  "type": "outbound",
+  "phone_number": "+15551234567",
+  "started_at": "2025-04-23T14:30:45Z",
+  "ended_at": "2025-04-23T14:35:12Z",
+  "duration_seconds": 267,
+  "summary": "Detailed summary of the call...",
+  "transcript": "Full transcript of the conversation...",
+  "recording_url": "https://storage.example.com/recordings/call_id.mp3",
+  "contact": {
+    "id": 789,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "company": "Acme Corp",
+    "status": "contacted",
+    "stage": "qualified_lead",
+    "last_call_date": "2025-04-23T14:35:12Z"
+  },
+  "team": {
+    "id": 101,
+    "name": "Sales Team"
+  },
+  "billing": {
+    "status": "billed",
+    "initial_charge": 1.50,
+    "final_charge": 2.25,
+    "total_charge": 2.25
+  }
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 404 | `not_found` | Call not found or you do not have access |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calls/123' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+```json
+{
+  "id": 123,
+  "agent": {
+    "id": 456,
+    "name": "Sales Representative",
+    "assistant_id": "assistant_abc123"
+  },
+  "call_id": "call_def456",
+  "status": "completed",
+  "type": "outbound",
+  "phone_number": "+15551234567",
+  "started_at": "2025-04-23T14:30:45Z",
+  "ended_at": "2025-04-23T14:35:12Z",
+  "duration_seconds": 267,
+  "summary": "The agent discussed product pricing with the customer and answered questions about delivery times. The customer expressed interest in the premium package and requested a follow-up call next week.",
+  "transcript": "Agent: Hello, this is Sales Representative from Acme Corp. How are you today?\nCustomer: I'm doing well, thanks. I'm interested in learning about your premium package...",
+  "recording_url": "https://storage.example.com/recordings/call_def456.mp3",
+  "contact": {
+    "id": 789,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "company": "Acme Corp",
+    "status": "contacted",
+    "stage": "qualified_lead",
+    "last_call_date": "2025-04-23T14:35:12Z"
+  },
+  "team": {
+    "id": 101,
+    "name": "Sales Team"
+  },
+  "billing": {
+    "status": "billed",
+    "initial_charge": 1.50,
+    "final_charge": 2.25,
+    "total_charge": 2.25
+  }
+}
+```

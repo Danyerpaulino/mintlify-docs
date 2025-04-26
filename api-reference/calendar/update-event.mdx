@@ -1,0 +1,264 @@
+---
+title: 'Update Calendar Event'
+api: 'PUT /api/v1/calendar/events/{event_id}/update'
+description: 'Update an existing calendar event'
+---
+
+Update an existing calendar event. You can use either PUT (full update) or PATCH (partial update) methods.
+
+## Path Parameters
+
+<ParamField path="event_id" type="string" required>
+  ID or UUID of the event to update.
+</ParamField>
+
+## Request Body
+
+<ParamField body="title" type="string">
+  Event title.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Event description.
+</ParamField>
+
+<ParamField body="start_time" type="string" format="ISO 8601">
+  Event start time.
+</ParamField>
+
+<ParamField body="end_time" type="string" format="ISO 8601">
+  Event end time.
+</ParamField>
+
+<ParamField body="event_type" type="string">
+  Type of event. One of: `meeting`, `appointment`, `busy`, `voice_call`, `video_call`.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Event status. One of: `scheduled`, `confirmed`, `cancelled`, `completed`, `no_show`.
+</ParamField>
+
+<ParamField body="location" type="string">
+  Event location.
+</ParamField>
+
+<ParamField body="customer_name" type="string">
+  Customer name.
+</ParamField>
+
+<ParamField body="customer_email" type="string">
+  Customer email.
+</ParamField>
+
+<ParamField body="customer_phone" type="string">
+  Customer phone number.
+</ParamField>
+
+<ParamField body="customer_notes" type="string">
+  Notes about the customer or appointment.
+</ParamField>
+
+<ParamField body="has_video_conference" type="boolean">
+  Whether the event has video conferencing enabled.
+</ParamField>
+
+<ParamField body="video_conference_url" type="string">
+  URL for video conferencing.
+</ParamField>
+
+<ParamField body="video_conference_provider" type="string">
+  Provider of video conferencing (e.g., Zoom, Google Meet, etc.).
+</ParamField>
+
+<ParamField body="is_reminder_enabled" type="boolean">
+  Whether reminders are enabled for this event.
+</ParamField>
+
+<ParamField body="remind_before_minutes" type="integer">
+  How many minutes before the event to send a reminder.
+</ParamField>
+
+<ParamField body="ai_agent_id" type="integer">
+  ID of the AI agent to associate with this event.
+</ParamField>
+
+<ParamField body="team_id" type="integer">
+  ID of the team to associate with this event.
+</ParamField>
+
+<ParamField body="sync_external_calendars" type="boolean" default={true}>
+  Whether to sync this update with connected external calendars.
+</ParamField>
+
+<ParamField body="send_notifications" type="boolean" default={true}>
+  Whether to send notifications about this update.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="integer">
+  Event ID.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Event UUID.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Event title.
+</ResponseField>
+
+<ResponseField name="start_time" type="string" format="ISO 8601">
+  Event start time.
+</ResponseField>
+
+<ResponseField name="end_time" type="string" format="ISO 8601">
+  Event end time.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Event status.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Success message.
+</ResponseField>
+
+## PUT vs PATCH
+
+- Use `PUT` when you want to replace the entire event with the new data (full update)
+- Use `PATCH` when you want to update only specific fields (partial update)
+
+## Example Request (PUT - Full Update)
+
+```bash
+curl -X PUT 'https://api.klen.ai/api/v1/calendar/events/456/update' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "Updated Product Demo",
+    "description": "Updated product demonstration for client",
+    "start_time": "2025-05-16T15:00:00.000Z",
+    "end_time": "2025-05-16T16:00:00.000Z",
+    "event_type": "video_call",
+    "status": "confirmed",
+    "location": "Online",
+    "customer_name": "Jane Doe",
+    "customer_email": "jane.doe@example.com",
+    "customer_phone": "+15551234567",
+    "has_video_conference": true,
+    "video_conference_provider": "Zoom",
+    "is_reminder_enabled": true,
+    "remind_before_minutes": 30,
+    "send_notifications": true
+  }'
+```
+
+## Example Request (PATCH - Partial Update)
+
+```bash
+curl -X PATCH 'https://api.klen.ai/api/v1/calendar/events/456/update' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "start_time": "2025-05-16T15:00:00.000Z",
+    "end_time": "2025-05-16T16:00:00.000Z",
+    "send_notifications": true
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 456,
+  "uuid": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
+  "title": "Updated Product Demo",
+  "start_time": "2025-05-16T15:00:00.000Z",
+  "end_time": "2025-05-16T16:00:00.000Z",
+  "status": "confirmed",
+  "message": "Event updated successfully"
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="string">
+  Error code.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message.
+</ResponseField>
+
+### Not Found (404)
+
+```json
+{
+  "error": "not_found",
+  "message": "Event not found or you do not have access"
+}
+```
+
+### Invalid Date Format (400)
+
+```json
+{
+  "error": "invalid_datetime_format",
+  "message": "Invalid datetime format. Expected ISO 8601 format (YYYY-MM-DDTHH:MM:SS)"
+}
+```
+
+### Invalid Time Range (400)
+
+```json
+{
+  "error": "invalid_time_range",
+  "message": "End time must be after start time"
+}
+```
+
+### Agent Not Found (404)
+
+```json
+{
+  "error": "agent_not_found",
+  "message": "AI agent not found or you do not have access"
+}
+```
+
+### Team Not Found (404)
+
+```json
+{
+  "error": "team_not_found",
+  "message": "Team not found or you do not have access"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "error": "authentication_required",
+  "message": "API key is required"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": "permission_denied",
+  "message": "This API key does not have can_write_calendar permission"
+}
+```
+
+### Server Error (500)
+
+```json
+{
+  "error": "server_error",
+  "message": "An unexpected server error occurred"
+}
+```

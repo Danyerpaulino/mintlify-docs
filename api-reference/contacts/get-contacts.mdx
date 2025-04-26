@@ -1,0 +1,139 @@
+---
+title: 'Get Contacts'
+api: 'GET /api/v1/contacts'
+description: 'Retrieve a list of contacts with filtering options'
+---
+
+# Get Contacts
+
+Retrieve a paginated list of contacts with various filtering options.
+
+## Endpoint
+
+```
+GET /api/v1/contacts
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_contacts` permission.
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `stage` | string | No | Filter by contact stage (lead, prospect, customer, etc.) |
+| `status` | string | No | Filter by contact status (not_contacted, contacted, etc.) |
+| `tag` | string | No | Filter by tag name |
+| `search` | string | No | Search in first name, last name, and email |
+| `page` | integer | No | Page number for pagination (default: 1) |
+| `limit` | integer | No | Number of results per page (default: 25, max: 100) |
+
+## Response
+
+```json
+{
+  "count": 157,
+  "page": 1,
+  "limit": 25,
+  "pages": 7,
+  "contacts": [
+    {
+      "id": 123,
+      "first_name": "John",
+      "last_name": "Doe",
+      "full_name": "John Doe",
+      "email": "john.doe@example.com",
+      "company": "Acme Corp",
+      "stage": "qualified_lead",
+      "status": "contacted",
+      "phone": "+15551234567",
+      "created_date": "2025-03-15T10:30:00Z",
+      "last_call_date": "2025-04-22T14:15:30Z",
+      "tags": ["VIP", "Interested", "Follow-up"]
+    },
+    {
+      "id": 124,
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "full_name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "company": "XYZ Inc",
+      "stage": "customer",
+      "status": "active",
+      "phone": "+15559876543",
+      "created_date": "2025-01-10T08:45:00Z",
+      "last_call_date": "2025-04-20T11:30:00Z",
+      "tags": ["Customer", "Enterprise"]
+    }
+  ]
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/contacts?stage=qualified_lead&tag=VIP&page=1&limit=25' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+```json
+{
+  "count": 12,
+  "page": 1,
+  "limit": 25,
+  "pages": 1,
+  "contacts": [
+    {
+      "id": 123,
+      "first_name": "John",
+      "last_name": "Doe",
+      "full_name": "John Doe",
+      "email": "john.doe@example.com",
+      "company": "Acme Corp",
+      "stage": "qualified_lead",
+      "status": "contacted",
+      "phone": "+15551234567",
+      "created_date": "2025-03-15T10:30:00Z",
+      "last_call_date": "2025-04-22T14:15:30Z",
+      "tags": ["VIP", "Interested", "Follow-up"]
+    }
+  ]
+}
+```
+
+## Response Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | integer | The database ID of the contact |
+| `first_name` | string | First name of the contact |
+| `last_name` | string | Last name of the contact |
+| `full_name` | string | Combined first and last name |
+| `email` | string | Email address of the contact |
+| `company` | string | Company or organization name |
+| `stage` | string | Current stage in the sales/contact pipeline |
+| `status` | string | Current status of the contact |
+| `phone` | string | Primary phone number of the contact |
+| `created_date` | string | ISO 8601 date when the contact was created |
+| `last_call_date` | string | ISO 8601 date of the most recent call with this contact |
+| `tags` | array | Array of tag names associated with the contact |
+| `team` | object | Team information if the contact belongs to a team |
+
+## Access Control
+
+This endpoint returns contacts that the authenticated user has access to. This includes:
+
+1. Contacts created by the user
+2. Contacts belonging to teams that the user has access to

@@ -1,0 +1,164 @@
+---
+title: 'Create Contact'
+api: 'POST /api/v1/contacts/create'
+description: 'Create a new contact in your account'
+---
+
+# Create Contact
+
+Create a new contact with the specified information.
+
+## Endpoint
+
+```
+POST /api/v1/contacts/create
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_contacts` permission.
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `first_name` | string | Yes | First name of the contact |
+| `last_name` | string | No | Last name of the contact |
+| `email` | string | No | Email address of the contact |
+| `company` | string | No | Company or organization name |
+| `website` | string | No | Company or personal website URL |
+| `address` | string | No | Street address |
+| `city` | string | No | City |
+| `state` | string | No | State or province |
+| `zip_code` | string | No | Postal or ZIP code |
+| `country` | string | No | Country (default: "US") |
+| `status` | string | No | Contact status (default: "not_contacted") |
+| `stage` | string | No | Contact stage (default: "lead") |
+| `team_id` | integer | No | ID of the team to assign the contact to |
+| `tags` | array | No | Array of tag names to associate with the contact |
+| `phone_numbers` | array | No | Array of phone number objects |
+| `custom_context` | object | No | Custom fields and data |
+| `industry_context` | object | No | Industry-specific information |
+
+### Phone Number Object
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `phone_number` | string | Yes | Phone number in E.164 format |
+| `phone_type` | string | No | Type of phone (mobile, work, home, etc.) |
+| `primary` | boolean | No | Whether this is the primary phone number |
+| `do_not_call` | boolean | No | Whether this number is on the do not call list |
+
+### Example Request Body
+
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@example.com",
+  "company": "Acme Corp",
+  "website": "https://acme.example.com",
+  "address": "123 Main St",
+  "city": "San Francisco",
+  "state": "CA",
+  "zip_code": "94105",
+  "country": "US",
+  "status": "not_contacted",
+  "stage": "lead",
+  "team_id": 101,
+  "tags": ["New Lead", "Website Inquiry"],
+  "phone_numbers": [
+    {
+      "phone_number": "+15551234567",
+      "phone_type": "mobile",
+      "primary": true,
+      "do_not_call": false
+    },
+    {
+      "phone_number": "+15552345678",
+      "phone_type": "work",
+      "primary": false,
+      "do_not_call": false
+    }
+  ],
+  "custom_context": {
+    "lead_source": "Website",
+    "budget": "$5,000-$10,000",
+    "decision_maker": true
+  },
+  "industry_context": {
+    "company_size": "50-250",
+    "industry_vertical": "Technology"
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "id": 123,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john.doe@example.com",
+  "message": "Contact created successfully"
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `missing_first_name` | First name is required |
+| 400 | `invalid_json` | Invalid JSON payload |
+| 400 | `validation_error` | Validation error with details |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 403 | `team_access_denied` | You do not have access to this team |
+| 404 | `team_not_found` | Team not found |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X POST 'https://api.klen.ai/api/v1/contacts/create' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "company": "Acme Corp",
+    "phone_numbers": [
+      {
+        "phone_number": "+15551234567",
+        "phone_type": "mobile",
+        "primary": true
+      }
+    ],
+    "tags": ["New Lead", "Website Inquiry"]
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 123,
+  "first_name": "John",
+  "last_name": "Doe",
+  "full_name": "John Doe",
+  "email": "john.doe@example.com",
+  "message": "Contact created successfully"
+}
+```
+
+## Notes
+
+- The newly created contact will be owned by the user associated with the API key.
+- If `team_id` is provided, the contact will be associated with that team, assuming the user has access to the team.
+- The first phone number in the `phone_numbers` array will be set as the primary one if no phone number has the `primary` flag set to `true`.
+- You can assign tags to the contact during creation. If a tag doesn't exist, it will be created.
+- Custom context fields can be used to store additional information specific to your business needs.

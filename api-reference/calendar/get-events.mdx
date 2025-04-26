@@ -1,0 +1,247 @@
+---
+title: 'Get Calendar Events'
+api: 'GET /api/v1/calendar/events'
+description: 'Retrieve a paginated list of calendar events'
+---
+
+Get a paginated list of calendar events with various filtering options.
+
+## Query Parameters
+
+<ParamField query="start_date" type="string" format="YYYY-MM-DD">
+  Start date for the range. If not provided, defaults to the current date.
+</ParamField>
+
+<ParamField query="end_date" type="string" format="YYYY-MM-DD">
+  End date for the range. If not provided, defaults to 30 days from the start date.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by event status. Valid values: `scheduled`, `confirmed`, `cancelled`, `completed`, `no_show`.
+</ParamField>
+
+<ParamField query="page" type="integer" default={1}>
+  Page number for pagination.
+</ParamField>
+
+<ParamField query="limit" type="integer" default={10} max={100}>
+  Number of results per page.
+</ParamField>
+
+## Response
+
+<ResponseField name="count" type="integer">
+  Total number of events matching the criteria.
+</ResponseField>
+
+<ResponseField name="page" type="integer">
+  Current page.
+</ResponseField>
+
+<ResponseField name="limit" type="integer">
+  Results per page.
+</ResponseField>
+
+<ResponseField name="pages" type="integer">
+  Total number of pages.
+</ResponseField>
+
+<ResponseField name="events" type="array">
+  List of events.
+
+  <Expandable title="Event Object">
+    <ResponseField name="id" type="integer">
+      Event ID.
+    </ResponseField>
+
+    <ResponseField name="uuid" type="string">
+      Event UUID.
+    </ResponseField>
+
+    <ResponseField name="title" type="string">
+      Event title.
+    </ResponseField>
+
+    <ResponseField name="event_type" type="string">
+      Type of event. One of: `meeting`, `appointment`, `busy`, `voice_call`, `video_call`.
+    </ResponseField>
+
+    <ResponseField name="status" type="string">
+      Event status. One of: `scheduled`, `confirmed`, `cancelled`, `completed`, `no_show`.
+    </ResponseField>
+
+    <ResponseField name="start_time" type="string" format="ISO 8601">
+      Event start time.
+    </ResponseField>
+
+    <ResponseField name="end_time" type="string" format="ISO 8601">
+      Event end time.
+    </ResponseField>
+
+    <ResponseField name="duration_minutes" type="integer">
+      Event duration in minutes.
+    </ResponseField>
+
+    <ResponseField name="location" type="string">
+      Event location.
+    </ResponseField>
+
+    <ResponseField name="has_video_conference" type="boolean">
+      Whether the event has video conferencing enabled.
+    </ResponseField>
+
+    <ResponseField name="video_conference_url" type="string">
+      URL for video conferencing.
+    </ResponseField>
+
+    <ResponseField name="created_by_ai_agent" type="boolean">
+      Whether the event was created by an AI agent.
+    </ResponseField>
+
+    <ResponseField name="ai_agent" type="object">
+      AI agent information (if event was created by an agent).
+      
+      <Expandable title="AI Agent Details">
+        <ResponseField name="id" type="integer">
+          Agent ID.
+        </ResponseField>
+
+        <ResponseField name="name" type="string">
+          Agent name.
+        </ResponseField>
+
+        <ResponseField name="assistant_id" type="string">
+          Assistant ID from Vapi.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="customer" type="object">
+      Customer information.
+      
+      <Expandable title="Customer Details">
+        <ResponseField name="name" type="string">
+          Customer name.
+        </ResponseField>
+
+        <ResponseField name="email" type="string">
+          Customer email.
+        </ResponseField>
+
+        <ResponseField name="phone" type="string">
+          Customer phone number.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calendar/events?start_date=2025-05-01&end_date=2025-05-31&status=confirmed&page=1&limit=10' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY'
+```
+
+## Example Response
+
+```json
+{
+  "count": 25,
+  "page": 1,
+  "limit": 10,
+  "pages": 3,
+  "events": [
+    {
+      "id": 123,
+      "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "title": "Client Meeting",
+      "event_type": "meeting",
+      "status": "confirmed",
+      "start_time": "2025-05-01T14:00:00.000Z",
+      "end_time": "2025-05-01T15:00:00.000Z",
+      "duration_minutes": 60,
+      "location": "Conference Room A",
+      "has_video_conference": true,
+      "video_conference_url": "https://meet.google.com/abc-defg-hij",
+      "created_by_ai_agent": true,
+      "ai_agent": {
+        "id": 42,
+        "name": "Meeting Scheduler",
+        "assistant_id": "asst_01234567890"
+      },
+      "customer": {
+        "name": "John Smith",
+        "email": "john.smith@example.com",
+        "phone": "+15551234567"
+      }
+    },
+    {
+      "id": 124,
+      "uuid": "63f5f61f-4271-4870-bc31-cbd75856663b",
+      "title": "Project Review",
+      "event_type": "video_call",
+      "status": "confirmed",
+      "start_time": "2025-05-02T10:00:00.000Z",
+      "end_time": "2025-05-02T11:30:00.000Z",
+      "duration_minutes": 90,
+      "location": null,
+      "has_video_conference": true,
+      "video_conference_url": "https://zoom.us/j/123456789",
+      "created_by_ai_agent": false,
+      "customer": {
+        "name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+15557654321"
+      }
+    }
+    // ... more events
+  ]
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="string">
+  Error code.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message.
+</ResponseField>
+
+### Invalid Parameters (400)
+
+```json
+{
+  "error": "invalid_parameter",
+  "message": "Invalid date format. Expected YYYY-MM-DD"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "error": "authentication_required",
+  "message": "API key is required"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": "permission_denied",
+  "message": "This API key does not have can_read_calendar permission"
+}
+```
+
+### Server Error (500)
+
+```json
+{
+  "error": "server_error",
+  "message": "An unexpected server error occurred"
+}
+```

@@ -1,0 +1,111 @@
+---
+title: 'Cancel Calendar Event'
+api: 'POST /api/v1/calendar/events/{event_id}/cancel'
+description: 'Cancel an existing calendar event'
+---
+
+Cancel an existing calendar event. This endpoint sets the event status to `cancelled`.
+
+## Path Parameters
+
+<ParamField path="event_id" type="string" required>
+  ID or UUID of the event to cancel.
+</ParamField>
+
+## Request Body
+
+<ParamField body="reason" type="string">
+  Reason for cancellation.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="integer">
+  Event ID.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Event UUID.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Event status (cancelled).
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Success message.
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST 'https://api.klen.ai/api/v1/calendar/events/456/cancel' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "reason": "Client requested to reschedule"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 456,
+  "uuid": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
+  "status": "cancelled",
+  "message": "Event cancelled successfully"
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="string">
+  Error code.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message.
+</ResponseField>
+
+### Not Found (404)
+
+```json
+{
+  "error": "not_found",
+  "message": "Event not found or you do not have access"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "error": "authentication_required",
+  "message": "API key is required"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": "permission_denied",
+  "message": "This API key does not have can_write_calendar permission"
+}
+```
+
+### Server Error (500)
+
+```json
+{
+  "error": "server_error",
+  "message": "An unexpected server error occurred"
+}
+```
+
+## Notes
+
+- Cancelling an event will also sync the cancellation with connected external calendars.
+- Notifications will be sent to the customer if the event has customer contact information and `send_notifications` was enabled when the event was created.
+- The cancellation reason will be added to the event's customer notes.

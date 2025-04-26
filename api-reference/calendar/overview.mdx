@@ -1,0 +1,86 @@
+---
+title: 'Calendar API Overview'
+description: 'Integrate with the Klen AI Calendar API to manage events and availability'
+---
+
+# Calendar API
+
+The Calendar API allows you to integrate with Klen AI's calendar functionality, enabling you to:
+
+- Retrieve calendar events
+- Create, update, and cancel events
+- Check availability for scheduling
+- Integrate with AI agents for automated scheduling
+
+## Base URL
+
+All Calendar API endpoints are available under the base URL:
+
+```
+https://api.klen.ai/api/v1/calendar
+```
+
+## Authentication
+
+All Calendar API requests require authentication using an API key. See the [Authentication](/api-reference/authentication) section for more details.
+
+## Calendar API Permissions
+
+Your API key must have the following permissions to use the Calendar API:
+
+- `can_read_calendar` - Required for read operations (GET requests)
+- `can_write_calendar` - Required for write operations (POST, PUT, PATCH, DELETE requests)
+
+## Rate Limits
+
+Each API key has a limit on the number of calendar events that can be created per day, defined by the `calendar_events_per_day_limit` field (default: 50).
+
+## Calendar Event Types
+
+Calendar events can be of the following types:
+
+| Type | Description |
+|------|-------------|
+| `meeting` | A general meeting |
+| `appointment` | A scheduled appointment |
+| `busy` | A busy/unavailable time slot |
+| `voice_call` | A voice call |
+| `video_call` | A video call |
+
+## Calendar Event Statuses
+
+Calendar events can have the following statuses:
+
+| Status | Description |
+|--------|-------------|
+| `scheduled` | The event is scheduled but not yet confirmed |
+| `confirmed` | The event is confirmed |
+| `cancelled` | The event has been cancelled |
+| `completed` | The event has been completed |
+| `no_show` | The customer did not show up for the event |
+
+## Webhook Integration
+
+The Calendar API integrates with Klen AI's webhook system, allowing you to receive notifications when calendar events are created, updated, cancelled, or completed.
+
+The following webhook event types are available for calendar events:
+
+| Event Type | Description |
+|------------|-------------|
+| `calendar.created` | A calendar event has been created |
+| `calendar.updated` | A calendar event has been updated |
+| `calendar.cancelled` | A calendar event has been cancelled |
+| `calendar.completed` | A calendar event has been completed |
+| `calendar.reminder` | A reminder for a calendar event has been sent |
+
+See the [Webhooks](/api-reference/webhooks/overview) section for more details on how to set up and use webhooks.
+
+## External Calendar Integration
+
+Calendar events can be synchronized with external calendar services such as:
+
+- Google Calendar
+- Microsoft Outlook
+- GoHighLevel
+
+When an event is created, updated, or cancelled through the API, it can be automatically synchronized with connected external calendars if the `sync_external_calendars` parameter is set to `true`.

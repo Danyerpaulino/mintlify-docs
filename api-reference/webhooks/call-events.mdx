@@ -1,0 +1,202 @@
+---
+title: 'Call Events'
+description: 'Webhook events related to call activities'
+---
+
+# Call Events
+
+This page details the webhook events related to calls and the payload structure for each event type.
+
+## Event Types
+
+| Event Type | Description | Trigger |
+|------------|-------------|---------|
+| `call.started` | Call has started | Triggered when a call connects |
+| `call.ended` | Call has ended | Triggered when a call is completed normally |
+| `call.failed` | Call failed to connect | Triggered when a call fails to connect |
+| `call.transcript` | Call transcript is available | Triggered when a transcript is generated |
+| `call.recording` | Call recording is available | Triggered when a recording is available |
+| `call.summary` | Call summary is available | Triggered when an AI summary is generated |
+
+## Common Payload Structure
+
+All call-related webhook events share a common payload structure, with some event-specific fields:
+
+```json
+{
+  "event_type": "call.ended",                   // The type of event
+  "call": {
+    "id": 123,                                  // Database ID
+    "klen_call_id": "call_abc123",              // Call ID from klen
+    "agent_id": 456,                            // Agent ID
+    "agent_name": "Customer Support",           // Agent name
+    "status": "completed",                      // Call status
+    "type": "inbound",                          // Call type (inbound/outbound)
+    "phone_number": "+15551234567",             // Client phone number
+    "started_at": "2025-04-23T14:30:45Z",       // Call start time
+    "ended_at": "2025-04-23T14:35:12Z",         // Call end time
+    "duration_seconds": 267                     // Call duration in seconds
+    // Additional event-specific fields...
+  },
+  "timestamp": "2025-04-23T14:35:15Z"           // Webhook generation timestamp
+}
+```
+
+## Event-Specific Payload Details
+
+### call.started
+
+Triggered when a call is successfully connected.
+
+```json
+{
+  "event_type": "call.started",
+  "call": {
+    // Common fields...
+    "assistant_id": "assistant_abc123"          // Assistant ID from klen
+  },
+  "timestamp": "2025-04-23T14:30:45Z"
+}
+```
+
+### call.ended
+
+Triggered when a call ends normally.
+
+```json
+{
+  "event_type": "call.ended",
+  "call": {
+    // Common fields...
+    "summary": "Brief summary of the call...",   // If available
+    "duration": 267                              // Call duration in seconds
+  },
+  "timestamp": "2025-04-23T14:35:15Z"
+}
+```
+
+### call.failed
+
+Triggered when a call fails to connect or ends prematurely.
+
+```json
+{
+  "event_type": "call.failed",
+  "call": {
+    // Common fields...
+    "failure_reason": "no-answer",              // Why the call failed
+    "ended_reason": "no-answer"                 // Reason from klen
+  },
+  "timestamp": "2025-04-23T14:32:00Z"
+}
+```
+
+Possible failure reasons:
+- `twilio-failed-to-connect-call`
+- `no-answer`
+- `busy`
+- `disconnected`
+- `invalid-number`
+- `rejected`
+- `canceled`
+- `failed`
+
+### call.transcript
+
+Triggered when a call transcript is generated.
+
+```json
+{
+  "event_type": "call.transcript",
+  "call": {
+    // Common fields...
+    "transcript": "Full transcript text...",     // The full transcript
+    "transcript_url": "https://..."              // URL to download transcript (if large)
+  },
+  "timestamp": "2025-04-23T14:36:00Z"
+}
+```
+
+### call.recording
+
+Triggered when a call recording is available.
+
+```json
+{
+  "event_type": "call.recording",
+  "call": {
+    // Common fields...
+    "recording_url": "https://..."              // URL to download recording
+  },
+  "timestamp": "2025-04-23T14:36:30Z"
+}
+```
+
+### call.summary
+
+Triggered when a call summary is generated.
+
+```json
+{
+  "event_type": "call.summary",
+  "call": {
+    // Common fields...
+    "summary": "Detailed AI-generated summary of the call..."
+  },
+  "timestamp": "2025-04-23T14:37:00Z"
+}
+```
+
+## Contact Information
+
+If the call is associated with a contact in your Klen AI account, the contact information is included in the payload:
+
+```json
+{
+  "event_type": "call.ended",
+  "call": {
+    // Common fields...
+    "contact": {
+      "id": 789,
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    }
+  },
+  "timestamp": "2025-04-23T14:35:15Z"
+}
+```
+
+## Workflow Example
+
+Here's a typical workflow for call events:
+
+1. Receive `call.started` when a call connects
+2. Receive `call.ended` when the call completes
+3. Receive `call.transcript` when the transcript is ready
+4. Receive `call.summary` when the AI summary is generated
+5. Receive `call.recording` when the audio recording is available
+
+## Handling Multiple Subscriptions
+
+If you have multiple webhook endpoints subscribed to the same events, each endpoint will receive a copy of the webhook. This allows you to process events in different systems or applications.
+
+## Security Recommendations
+
+When processing call events:
+
+1. Always verify the webhook signature
+2. Implement idempotency to handle potential duplicate deliveries
+3. Securely store sensitive information like phone numbers and transcripts
+4. Use HTTPS for your webhook endpoints
+
+## Testing Call Events
+
+To test call events, you can:
+
+1. Make a test call using the Klen AI dashboard
+2. Use a webhook testing tool (like [Webhook.site](https://webhook.site))
+3. Check the webhook delivery logs in your Klen AI dashboard
+
+## Handling Large Payloads
+
+For lengthy transcripts or large call summaries, we may include a URL to download the content instead of including it directly in the webhook payload. In these cases, you'll see a `transcript_url` or similar field with a pre-signed URL to download the content.

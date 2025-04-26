@@ -1,0 +1,118 @@
+---
+title: 'Calendar Event Webhooks'
+description: 'Webhook notifications for calendar events'
+---
+
+# Calendar Event Webhooks
+
+The Klen AI API can send webhook notifications for various calendar events, allowing you to integrate with external systems and keep them in sync with your Klen AI calendar.
+
+## Available Event Types
+
+When configuring a webhook endpoint, you can subscribe to the following calendar event types:
+
+| Event Type | Description |
+|------------|-------------|
+| `calendar.created` | A calendar event has been created |
+| `calendar.updated` | A calendar event has been updated |
+| `calendar.cancelled` | A calendar event has been cancelled |
+| `calendar.completed` | A calendar event has been completed |
+| `calendar.reminder` | A reminder for a calendar event has been sent |
+
+## Webhook Payload
+
+When a calendar event occurs, the webhook will receive a payload with the following structure:
+
+```json
+{
+  "event_type": "calendar.created",
+  "calendar_event": {
+    "id": 123,
+    "uuid": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "title": "Client Meeting",
+    "event_type": "meeting",
+    "status": "confirmed",
+    "start_time": "2025-05-01T14:00:00.000Z",
+    "end_time": "2025-05-01T15:00:00.000Z",
+    "duration_minutes": 60,
+    "location": "Conference Room A",
+    "has_video_conference": true,
+    "video_conference_url": "https://meet.google.com/abc-defg-hij",
+    "created_by_ai_agent": true,
+    "ai_agent": {
+      "id": 42,
+      "name": "Meeting Scheduler",
+      "assistant_id": "asst_01234567890"
+    },
+    "customer": {
+      "name": "John Smith",
+      "email": "john.smith@example.com",
+      "phone": "+15551234567"
+    },
+    "ics_url": "/calendar/event/f47ac10b-58cc-4372-a567-0e02b2c3d479/calendar.ics"
+  },
+  "timestamp": "2025-05-01T10:15:30.000Z"
+}
+```
+
+## Event-Specific Payload Differences
+
+Depending on the event type, the payload may contain additional information.
+
+### calendar.updated
+
+For `calendar.updated` events, the payload may include information about what was changed:
+
+```json
+{
+  "event_type": "calendar.updated",
+  "calendar_event": {
+    // Standard event fields
+    ...
+    // Additional fields for updates
+    "time_changed": true,
+    "previous_start": "2025-05-01T13:00:00.000Z",
+    "previous_end": "2025-05-01T14:00:00.000Z"
+  },
+  "timestamp": "2025-05-01T10:15:30.000Z"
+}
+```
+
+### calendar.cancelled
+
+For `calendar.cancelled` events, the payload may include a cancellation reason:
+
+```json
+{
+  "event_type": "calendar.cancelled",
+  "calendar_event": {
+    // Standard event fields
+    ...
+    // Additional fields for cancellations
+    "reason": "Client requested to reschedule"
+  },
+  "timestamp": "2025-05-01T10:15:30.000Z"
+}
+```
+
+## Webhook Security
+
+All webhook requests include a signature in the `X-Klen-Signature` header for verification. See the [Webhook Security](/api-reference/webhooks/overview#webhook-security) documentation for details on how to verify webhook signatures.
+
+## Configuring Webhooks
+
+To configure a webhook for calendar events:
+
+1. Go to the [Webhooks page](https://app.klen.ai/settings/webhooks) in the Klen AI dashboard
+2. Click "Create new webhook"
+3. Enter a name and URL for your webhook
+4. Select the calendar event types you want to subscribe to
+5. Click "Create webhook"
+
+Alternatively, you can use the [Create Webhook API endpoint](/api-reference/webhooks/create-webhook) to programmatically create webhook endpoints.
+
+## Testing Webhooks
+
+You can test your webhook integration by creating, updating, or cancelling calendar events through the Klen AI dashboard or API.
+
+For more details on webhooks, see the [Webhooks Overview](/api-reference/webhooks/overview) documentation.

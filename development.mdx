@@ -1,107 +1,236 @@
 ---
 title: 'Development'
-description: 'Preview changes locally to update your docs'
+description: 'Advanced development tips and best practices for Klen AI API'
 ---
 
-<Info>
-  **Prerequisite**: Please install Node.js (version 19 or higher) before proceeding. <br />
-  Please upgrade to ```docs.json``` before proceeding and delete the legacy ```mint.json``` file.
-</Info>
+# Development Guide
 
-Follow these steps to install and run Mintlify on your operating system:
+This guide provides advanced tips, best practices, and examples for developers working with the Klen AI API. Use this information to build robust, scalable integrations with our platform.
 
-**Step 1**: Install Mintlify:
+## API Architecture
 
-<CodeGroup>
+The Klen AI API is a RESTful API that uses standard HTTP methods and returns JSON responses. The base URL for all API requests is:
 
-  ```bash npm
-  npm i -g mintlify
-  ```
-
-```bash yarn
-yarn global add mintlify
+```
+https://api.klen.ai/api/v1
 ```
 
-</CodeGroup>
+Our API follows these conventions:
 
-**Step 2**: Navigate to the docs directory (where the `docs.json` file is located) and execute the following command:
+- `GET` requests for retrieving resources
+- `POST` requests for creating resources
+- `PUT`/`PATCH` requests for updating resources
+- `DELETE` requests for deleting resources (when applicable)
 
-```bash
-mintlify dev
+## Error Handling
+
+The API returns appropriate HTTP status codes and error messages to help you troubleshoot issues:
+
+```json
+{
+  "error": "error_code",
+  "message": "Human-readable error message"
+}
 ```
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+Common error codes include:
 
-### Custom Ports
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `validation_error` | Invalid input parameters |
+| 401 | `authentication_required` | No API key provided |
+| 401 | `invalid_key` | Invalid or inactive API key |
+| 403 | `permission_denied` | API key lacks required permission |
+| 404 | `not_found` | Requested resource not found |
+| 429 | `rate_limit_exceeded` | Rate limit exceeded |
+| 500 | `server_error` | Internal server error |
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. To run Mintlify on port 3333, for instance, use this command:
+For robust error handling, implement retry logic with exponential backoff for 5xx errors and 429 rate limit errors.
 
-```bash
-mintlify dev --port 3333
+## Pagination
+
+List endpoints support pagination through the `page` and `limit` query parameters:
+
+```
+GET /api/v1/calls?page=2&limit=25
 ```
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+Pagination responses include metadata to help you navigate the results:
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
+```json
+{
+  "count": 157,     // Total number of items
+  "page": 2,        // Current page
+  "limit": 25,      // Items per page
+  "pages": 7,       // Total number of pages
+  "calls": [...]    // Results for this page
+}
 ```
 
-## Mintlify Versions
+For large datasets, we recommend implementing cursor-based pagination by storing the ID of the last item received and using it to fetch the next page.
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local website doesn't align with the production version, please update the CLI:
+## Rate Limiting
 
-<CodeGroup>
+Our API implements rate limiting to ensure the stability of the service. Rate limits are enforced on a per-API-key basis.
 
-```bash npm
-npm i -g mintlify@latest
+When you exceed the rate limit, you'll receive a `429 Too Many Requests` status code with a `Retry-After` header indicating when you can make your next request.
+
+```
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 30
+
+{
+  "error": "rate_limit_exceeded",
+  "message": "Rate limit exceeded. Please try again after 30 seconds."
+}
 ```
 
-```bash yarn
-yarn global upgrade mintlify
+Implement proper handling of rate limit responses by respecting the `Retry-After` header and implementing exponential backoff strategies.
+
+## Best Practices
+
+### Security
+
+1. **Store API Keys Securely**: Never hardcode API keys in your source code or expose them in client-side JavaScript.
+2. **Use Environment Variables**: Store your API keys in environment variables or a secure key management system.
+3. **Implement IP Allowlisting**: Use the Klen AI dashboard to restrict access to your API keys from specific IP addresses.
+4. **Create Scoped Keys**: Create API keys with the minimum required permissions for each use case.
+
+### Performance
+
+1. **Optimize Batch Operations**: Use batch endpoints where available instead of making many individual requests.
+2. **Implement Caching**: Cache responses for resources that don't change frequently.
+3. **Use Compression**: Enable gzip compression for API requests and responses to reduce bandwidth usage.
+4. **Filter Results**: Use query parameters to filter results on the server side rather than retrieving all data and filtering client-side.
+
+### Webhooks
+
+1. **Verify Webhook Signatures**: Always verify the signature of incoming webhook requests using the secret provided when creating the webhook.
+2. **Implement Idempotency**: Handle webhook events idempotently to avoid duplicate processing.
+3. **Acknowledge Quickly**: Respond to webhook requests with a 2xx status code as quickly as possible, then process the event asynchronously.
+
+## Working with Agents
+
+When creating or updating AI agents, you can customize various aspects of their behavior:
+
+### Agent Persona
+
+Provide detailed instructions to shape your agent's personality, tone, and behavior:
+
+```json
+{
+  "name": "Customer Support Agent",
+  "model_instructions": "You are a friendly and helpful customer support agent for a software company. Your goal is to help customers troubleshoot technical issues and answer questions about our products. Be patient, empathetic, and technically accurate. If you don't know the answer to a specific question, politely acknowledge this and offer to connect the customer with a human agent."
+}
 ```
 
-</CodeGroup>
+### Context Variables
 
-## Validating Links
+Use context variables to provide dynamic information to your agents during calls:
 
-The CLI can assist with validating reference links made in your documentation. To identify any broken links, use the following command:
-
-```bash
-mintlify broken-links
+```json
+{
+  "variables": {
+    "customer_name": "John Doe",
+    "last_purchase": "Premium Plan (3 months ago)",
+    "open_tickets": [
+      {
+        "id": "T-12345",
+        "subject": "Integration issue with API",
+        "status": "In Progress"
+      }
+    ],
+    "subscription_status": "Active",
+    "renewal_date": "2025-07-15"
+  }
+}
 ```
 
-## Deployment
+Variables can be referenced in the agent's instructions using `{{variable_name}}` syntax.
 
-<Tip>
-  Unlimited editors available under the [Pro
-  Plan](https://mintlify.com/pricing) and above.
-</Tip>
+## Testing
 
-If the deployment is successful, you should see the following:
+We provide a sandbox environment for testing your integration without making real phone calls:
 
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
+```
+https://api-sandbox.klen.ai/api/v1
+```
 
-## Code Formatting
+In the sandbox environment:
+- No real calls are made
+- No charges are incurred
+- Test data is automatically generated
+- API responses mimic production behavior
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+To use the sandbox, simply replace the base URL in your API requests.
 
-## Troubleshooting
+## Implementing Webhooks
 
-<AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
+### Receiving Webhooks
 
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of mintlify: `npm remove -g mintlify`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall mintlify: `npm install -g mintlify`
-  </Accordion>
+Here's an example of how to receive and verify webhook events using Node.js and Express:
 
-  <Accordion title="Issue: Encountering an unknown error">
+```javascript
+const express = require('express');
+const crypto = require('crypto');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+const WEBHOOK_SECRET = process.env.KLEN_WEBHOOK_SECRET;
+
+app.post('/webhooks/klen', (req, res) => {
+  const signature = req.headers['x-klen-signature'];
+  const body = JSON.stringify(req.body);
   
-    Solution: Go to the root of your device and delete the \~/.mintlify folder. Afterwards, run `mintlify dev` again.
-  </Accordion>
-</AccordionGroup>
+  // Verify signature
+  const expectedSignature = crypto
+    .createHmac('sha256', WEBHOOK_SECRET)
+    .update(body)
+    .digest('hex');
+    
+  if (signature !== expectedSignature) {
+    return res.status(401).send('Invalid signature');
+  }
+  
+  // Process the webhook event
+  const event = req.body;
+  console.log(`Received ${event.event_type} event`);
+  
+  // Process based on event type
+  switch (event.event_type) {
+    case 'call.started':
+      // Handle call started
+      break;
+    case 'call.ended':
+      // Handle call ended
+      break;
+    case 'call.transcript':
+      // Handle call transcript
+      break;
+    // Handle other event types...
+  }
+  
+  // Acknowledge receipt
+  res.status(200).send('Webhook received');
+});
 
-Curious about what changed in the CLI version? [Check out the CLI changelog.](https://www.npmjs.com/package/mintlify?activeTab=versions)
+app.listen(3000, () => {
+  console.log('Webhook server running on port 3000');
+});
+```
+
+### Webhook Event Types
+
+Refer to our [Webhook Events documentation](/api-reference/webhooks/overview) for a complete list of available webhook events and their payloads.
+
+## Need Help?
+
+If you need assistance with your integration, you can:
+
+- Consult our [API Reference](/api-reference/introduction)
+- Contact our [Support](mailto:support@klen.ai)
+
+We're committed to helping you build successful integrations with Klen AI!

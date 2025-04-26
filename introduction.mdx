@@ -1,71 +1,102 @@
 ---
-title: Introduction
-description: "Welcome to the home of your new documentation"
+title: 'Introduction'
+description: 'Welcome to the Klen AI API documentation'
 ---
 
-<img
-  className="block dark:hidden"
-  src="/images/hero-light.png"
-  alt="Hero Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/hero-dark.png"
-  alt="Hero Dark"
-/>
+# Welcome to Klen AI
 
-## Setting up
+Klen AI is a powerful platform that enables developers to build and integrate AI calling agents into their applications. Our API provides a seamless way to manage calls, agents, contacts, and calendar events, allowing you to create intelligent communication workflows for your business.
 
-The first step to world-class documentation is setting up your editing environments.
+## What Can You Do With Klen AI?
 
-<CardGroup cols={2}>
-  <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
-  >
-    Get your docs set up locally for easy development
-  </Card>
-  <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
-  >
-    Preview your changes before you push to make sure they're perfect
-  </Card>
-</CardGroup>
+- **Automate Phone Conversations**: Create AI agents that can make and receive calls, follow scripts, and adapt to conversations in real-time.
+- **Manage Contacts**: Create, update, and organize your contacts with a comprehensive contact management system.
+- **Schedule Appointments**: Integrate with calendar systems to schedule meetings and appointments.
+- **Receive Webhooks**: Get real-time notifications about call events, transcripts, and calendar updates.
 
-## Make it yours
+## Getting Started
 
-Update your docs to your brand and add valuable content for the best user conversion.
+To start using the Klen AI API, you'll need to:
 
-<CardGroup cols={2}>
-  <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
-  </Card>
-  <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
-  >
-    Automatically generate endpoints from an OpenAPI spec
-  </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
-  >
-    Build interactive features and designs to guide your users
-  </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
-  >
-    Check out our showcase of our favorite documentation
-  </Card>
-</CardGroup>
+1. [Create an account](https://app.klen.ai/signup) on the Klen AI platform
+2. Generate an API key from your dashboard
+3. Integrate our API into your application
+
+## API Key Authentication
+
+All requests to the Klen AI API require authentication using an API key. Your API key carries many privileges, so be sure to keep it secure. You can manage your API keys from the [API Keys page](https://app.klen.ai/settings/api-keys) in your dashboard.
+
+Authentication is performed using the Bearer token method:
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calls' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY'
+```
+
+## Rate Limits
+
+To ensure the stability of our service, we implement rate limits on API requests:
+
+- API keys have a `requests_per_minute_limit` (default: 60 requests per minute)
+- For call initiation, there is a `calls_per_day_limit` (default: 100 calls per day)
+- For calendar events, there is a `calendar_events_per_day_limit` (default: 50 events per day)
+
+## Example Use Cases
+
+### Virtual Receptionist
+
+Create a virtual receptionist that answers calls, schedules appointments, and routes calls to the appropriate person.
+
+```javascript
+const klen = new KlenAI('klen_YOUR_API_KEY');
+
+// Create an inbound call agent
+const agent = await klen.agents.create({
+  name: 'Virtual Receptionist',
+  role: 'inbound agent',
+  model_name: 'claude-3-opus-20240229',
+  voice_id: 'alloy',
+  instructions: 'You are a friendly receptionist for Acme Corp...'
+});
+
+// Assign a phone number to the agent
+await klen.phoneNumbers.assign(agent.id, '+15551234567');
+```
+
+### Automated Appointment Reminder
+
+Send automated appointment reminders to customers and allow them to confirm, reschedule, or cancel appointments.
+
+```python
+import klen
+
+client = klen.KlenAI('klen_YOUR_API_KEY')
+
+# Get upcoming appointments
+events = client.calendar.events.list(
+  start_date='today',
+  end_date='tomorrow',
+  status='confirmed'
+)
+
+# Send reminders for each appointment
+for event in events.data:
+  call = client.calls.create(
+    agent_id='123',
+    phone_number=event.customer.phone,
+    variables={
+      'customer_name': event.customer.name,
+      'appointment_time': event.start_time,
+      'appointment_type': event.title
+    }
+  )
+```
+
+## Next Steps
+
+- [Quickstart Guide](/quickstart): Get up and running quickly with a simple integration
+- [API Reference](/api-reference/introduction): Explore the full API documentation
+- [Guides](/guides): Learn how to build common integrations
+- [Examples](/examples): See code examples in various programming languages
+
+Need help? Contact our [support team](mailto:support@klen.ai) or join our [community forum](https://community.klen.ai).

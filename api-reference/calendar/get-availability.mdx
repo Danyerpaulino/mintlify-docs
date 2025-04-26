@@ -1,0 +1,172 @@
+---
+title: 'Get Calendar Availability'
+api: 'GET /api/v1/calendar/availability'
+description: 'Retrieve available time slots for scheduling'
+---
+
+Get available time slots for scheduling based on the user's calendar and availability settings.
+
+## Query Parameters
+
+<ParamField query="start_date" type="string" format="YYYY-MM-DD">
+  Start date for the range. If not provided, defaults to the current date.
+</ParamField>
+
+<ParamField query="end_date" type="string" format="YYYY-MM-DD">
+  End date for the range. If not provided, defaults to 7 days from the start date.
+</ParamField>
+
+<ParamField query="duration" type="integer" default={30}>
+  Duration in minutes for the time slots.
+</ParamField>
+
+## Response
+
+<ResponseField name="user_id" type="integer">
+  User ID.
+</ResponseField>
+
+<ResponseField name="start_date" type="string" format="YYYY-MM-DD">
+  Start date of the range.
+</ResponseField>
+
+<ResponseField name="end_date" type="string" format="YYYY-MM-DD">
+  End date of the range.
+</ResponseField>
+
+<ResponseField name="duration_minutes" type="integer">
+  Duration in minutes.
+</ResponseField>
+
+<ResponseField name="available_slots" type="array">
+  List of available time slots.
+
+  <Expandable title="Slot Object">
+    <ResponseField name="start" type="string" format="ISO 8601">
+      Start time of the slot.
+    </ResponseField>
+
+    <ResponseField name="end" type="string" format="ISO 8601">
+      End time of the slot.
+    </ResponseField>
+
+    <ResponseField name="duration_minutes" type="integer">
+      Duration of the slot in minutes.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="integer">
+  Total number of available slots.
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/calendar/availability?start_date=2025-05-01&end_date=2025-05-07&duration=60' \
+  -H 'Authorization: Bearer klen_YOUR_API_KEY'
+```
+
+## Example Response
+
+```json
+{
+  "user_id": 123,
+  "start_date": "2025-05-01",
+  "end_date": "2025-05-07",
+  "duration_minutes": 60,
+  "available_slots": [
+    {
+      "start": "2025-05-01T09:00:00.000Z",
+      "end": "2025-05-01T10:00:00.000Z",
+      "duration_minutes": 60
+    },
+    {
+      "start": "2025-05-01T13:00:00.000Z",
+      "end": "2025-05-01T14:00:00.000Z",
+      "duration_minutes": 60
+    },
+    {
+      "start": "2025-05-02T10:00:00.000Z",
+      "end": "2025-05-02T11:00:00.000Z",
+      "duration_minutes": 60
+    },
+    {
+      "start": "2025-05-02T14:00:00.000Z",
+      "end": "2025-05-02T15:00:00.000Z",
+      "duration_minutes": 60
+    },
+    {
+      "start": "2025-05-05T09:00:00.000Z",
+      "end": "2025-05-05T10:00:00.000Z",
+      "duration_minutes": 60
+    }
+    // ... more slots
+  ],
+  "count": 15
+}
+```
+
+## Error Responses
+
+<ResponseField name="error" type="string">
+  Error code.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message.
+</ResponseField>
+
+### Invalid Parameters (400)
+
+```json
+{
+  "error": "invalid_parameter_format",
+  "message": "Invalid date format. Expected YYYY-MM-DD"
+}
+```
+
+```json
+{
+  "error": "invalid_duration",
+  "message": "Duration must be between 1 and 180 minutes"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "error": "authentication_required",
+  "message": "API key is required"
+}
+```
+
+### Permission Denied (403)
+
+```json
+{
+  "error": "permission_denied",
+  "message": "This API key does not have can_read_calendar permission"
+}
+```
+
+### Server Error (500)
+
+```json
+{
+  "error": "server_error",
+  "message": "An unexpected server error occurred"
+}
+```
+
+## Notes
+
+- The available slots are calculated based on:
+  - The user's availability schedules
+  - Existing calendar events
+  - Buffer time between meetings
+  - Advance notice requirements
+  - Business hours
+- All times are returned in UTC (ISO 8601 format)
+- You can convert the times to the user's local timezone if needed
