@@ -11,6 +11,7 @@ Klen AI is a powerful platform that enables developers to build and integrate AI
 
 - **Automate Phone Conversations**: Create AI agents that can make and receive calls, follow scripts, and adapt to conversations in real-time.
 - **Manage Contacts**: Create, update, and organize your contacts with a comprehensive contact management system.
+- **Context Variables**: Manage contact and business context variables for personalization
 - **Schedule Appointments**: Integrate with calendar systems to schedule meetings and appointments.
 - **Receive Webhooks**: Get real-time notifications about call events, transcripts, and calendar updates.
 
@@ -18,7 +19,7 @@ Klen AI is a powerful platform that enables developers to build and integrate AI
 
 To start using the Klen AI API, you'll need to:
 
-1. [Create an account](https://app.klen.ai/signup) on the Klen AI platform
+1. [Create an account](https://klen.ai/get-started) on the Klen AI platform
 2. Generate an API key from your dashboard
 3. Integrate our API into your application
 
@@ -54,7 +55,7 @@ const klen = new KlenAI('klen_YOUR_API_KEY');
 const agent = await klen.agents.create({
   name: 'Virtual Receptionist',
   role: 'inbound agent',
-  model_name: 'claude-3-opus-20240229',
+  model_name: 'openai-gpt-4.1-nano',
   voice_id: 'alloy',
   instructions: 'You are a friendly receptionist for Acme Corp...'
 });
@@ -99,4 +100,4 @@ for event in events.data:
 - [Guides](/guides): Learn how to build common integrations
 - [Examples](/examples): See code examples in various programming languages
 
-Need help? Contact our [support team](mailto:support@klen.ai) or join our [community forum](https://community.klen.ai).
+Need help? Contact our [support team](mailto:support@klen.ai).
