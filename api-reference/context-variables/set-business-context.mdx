@@ -1,0 +1,114 @@
+---
+title: 'Set Business Context Variables'
+api: 'POST /api/v1/business/context'
+description: 'Set business context variables for your account'
+---
+
+# Set Business Context Variables
+
+Set business context variables for your account. These variables can be used for personalization in AI calls, templates, and other communications.
+
+## Endpoint
+
+```
+POST /api/v1/business/context
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_write_contacts` permission.
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `variables` | object | Yes | Map of variable names to values |
+| `auto_create_variables` | boolean | No | Whether to automatically create undefined variables |
+
+### Example Request Body
+
+```json
+{
+  "variables": {
+    "office_hours": "9 AM - 5 PM EST",
+    "support_phone": "+18005551234",
+    "pricing_tier": "Enterprise"
+  },
+  "auto_create_variables": true
+}
+```
+
+## Response
+
+```json
+{
+  "message": "Business context variables updated successfully"
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `invalid_json` | Invalid JSON payload |
+| 400 | `invalid_value` | A variable value doesn't match its defined type |
+| 400 | `undefined_variable` | A variable is not defined (when auto_create_variables is false) |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X POST 'https://api.klen.ai/api/v1/business/context' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "variables": {
+      "office_hours": "9 AM - 5 PM EST",
+      "support_phone": "+18005551234",
+      "pricing_tier": "Enterprise"
+    },
+    "auto_create_variables": true
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Business context variables updated successfully"
+}
+```
+
+## Data Type Validation
+
+Values are validated against the variable's defined type:
+
+| Type | Valid Values | Examples |
+|------|-------------|----------|
+| `text` | Any string | `"Premium Support"` |
+| `number` | Numbers, numeric strings | `250.50`, `"42"` |
+| `date` | ISO date strings | `"2023-12-01"`, `"2023-01-15T14:30:00Z"` |
+| `boolean` | Boolean values, boolean strings | `true`, `false`, `"true"`, `"yes"`, `"1"` |
+| `select` | Value from predefined options | Must match one of the defined options |
+
+## Auto-Creating Variables
+
+When `auto_create_variables` is set to `true`:
+- If a variable name is not already defined, the system will create a new definition
+- The variable type will be inferred from the value
+- The display name will be generated from the variable name (e.g., `office_hours` → "Office Hours")
+
+When `auto_create_variables` is `false` (default):
+- All variable names must already be defined
+- Attempting to set an undefined variable will result in an error
+
+## Notes
+
+- Business context variables apply to your entire account and can be used in all communications
+- These variables are prefixed with `business_` when used in templates (e.g., `business_office_hours`)
+- For select type variables, the value must match one of the defined options
+- Variable values are stored in your business profile
+- Setting a variable to `null` will remove it from your business context

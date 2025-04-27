@@ -1,0 +1,126 @@
+---
+title: 'Set Contact Context Variables'
+api: 'POST /api/v1/contacts/{contact_id}/context'
+description: 'Set context variables for a specific contact'
+---
+
+# Set Contact Context Variables
+
+Set context variables for a specific contact. These variables can be used for personalization in AI calls, templates, and other communications.
+
+## Endpoint
+
+```
+POST /api/v1/contacts/{contact_id}/context
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_write_contacts` permission.
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `contact_id` | integer | Yes | ID of the contact |
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `variables` | object | Yes | Map of variable names to values |
+| `auto_create_variables` | boolean | No | Whether to automatically create undefined variables |
+
+### Example Request Body
+
+```json
+{
+  "variables": {
+    "last_payment_date": "2023-12-01",
+    "membership_level": "Gold",
+    "account_balance": 250.50,
+    "is_active": true
+  },
+  "auto_create_variables": true
+}
+```
+
+## Response
+
+```json
+{
+  "message": "Contact context variables updated successfully",
+  "contact_id": 123
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `invalid_json` | Invalid JSON payload |
+| 400 | `invalid_value` | A variable value doesn't match its defined type |
+| 400 | `undefined_variable` | A variable is not defined (when auto_create_variables is false) |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 404 | `not_found` | Contact not found or you do not have access |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X POST 'https://api.klen.ai/api/v1/contacts/123/context' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "variables": {
+      "last_payment_date": "2023-12-01",
+      "membership_level": "Gold",
+      "account_balance": 250.50,
+      "is_active": true
+    },
+    "auto_create_variables": true
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Contact context variables updated successfully",
+  "contact_id": 123
+}
+```
+
+## Data Type Validation
+
+Values are validated against the variable's defined type:
+
+| Type | Valid Values | Examples |
+|------|-------------|----------|
+| `text` | Any string | `"Premium Support"` |
+| `number` | Numbers, numeric strings | `250.50`, `"42"` |
+| `date` | ISO date strings | `"2023-12-01"`, `"2023-01-15T14:30:00Z"` |
+| `boolean` | Boolean values, boolean strings | `true`, `false`, `"true"`, `"yes"`, `"1"` |
+| `select` | Value from predefined options | Must match one of the defined options |
+
+## Auto-Creating Variables
+
+When `auto_create_variables` is set to `true`:
+- If a variable name is not already defined, the system will create a new definition
+- The variable type will be inferred from the value
+- The display name will be generated from the variable name (e.g., `last_payment_date` → "Last Payment Date")
+
+When `auto_create_variables` is `false` (default):
+- All variable names must already be defined
+- Attempting to set an undefined variable will result in an error
+
+## Notes
+
+- You can only set variables for contacts that your account has access to
+- For select type variables, the value must match one of the defined options
+- Variable values are stored in the contact's custom context
+- These variables are accessible in AI voice calls and other communications
+- You can update multiple variables in a single request
+- Setting a variable to `null` will remove it from the contact's context

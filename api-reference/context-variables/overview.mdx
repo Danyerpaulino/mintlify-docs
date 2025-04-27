@@ -1,0 +1,61 @@
+---
+title: 'Context Variables Overview'
+description: 'Manage contact and business context variables for personalization'
+---
+
+# Context Variables API
+
+The Context Variables API allows you to manage custom variables for your contacts and business profile. These variables can be used for personalization in calls, templates, and other communications.
+
+## Variable Definitions
+
+Before using variables, you should define them. Variable definitions specify:
+- The variable name (API friendly identifier)
+- Display name (user-friendly label)
+- Type (text, number, date, boolean, or select)
+- Context scope (contact or business)
+
+## Available Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/context-variables` | List all context variable definitions |
+| POST | `/api/v1/context-variables/create` | Create a new context variable definition |
+| PUT/PATCH | `/api/v1/context-variables/{variable_id}/update` | Update an existing variable definition |
+| DELETE | `/api/v1/context-variables/{variable_id}/delete` | Delete a variable definition |
+| POST | `/api/v1/contacts/{contact_id}/context` | Set context variables for a specific contact |
+| POST | `/api/v1/business/context` | Set business context variables for your account |
+
+## Variable Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `text` | Simple text data | `"Premium Support"` |
+| `number` | Numeric values | `250.50` |
+| `date` | Date values | `"2023-12-01"` |
+| `boolean` | True/false values | `true` |
+| `select` | Value from a predefined list | `"Gold"` from `["Bronze", "Silver", "Gold"]` |
+
+## Context Types
+
+| Type | Description |
+|------|-------------|
+| `contact` | Variables associated with individual contacts |
+| `business` | Variables associated with your business profile |
+
+## Integration with CRMs
+
+You can use these APIs to synchronize data between your CRM and Klen AI. For example, when a contact record is updated in your CRM, you can update the corresponding contact's context variables in Klen AI via the API.
+
+### Example CRM Integration Flow
+
+1. Set up webhooks in your CRM to trigger when contact records are updated
+2. When a webhook is triggered, map CRM fields to Klen AI context variables
+3. Call the Klen AI API to update the context variables
+4. Use the updated variables in your AI voice calls and communications
+
+## Authentication
+
+All Context Variables API endpoints require an API key with appropriate permissions:
+- `can_read_contacts` permission for GET operations
+- `can_write_contacts` permission for POST, PUT, PATCH, and DELETE operations

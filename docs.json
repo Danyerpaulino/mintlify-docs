@@ -57,6 +57,18 @@
             ]
           },
           {
+            "group": "Context Variables",
+            "pages": [
+              "api-reference/context-variables/overview",
+              "api-reference/context-variables/create-context-variable",
+              "api-reference/context-variables/get-context-variables",
+              "api-reference/context-variables/update-context-variable",
+              "api-reference/context-variables/delete-context-variable",
+              "api-reference/context-variables/set-contact-context",
+              "api-reference/context-variables/set-business-context"
+            ]
+          },
+          {
             "group": "Calendar",
             "pages": [
               "api-reference/calendar/overview",

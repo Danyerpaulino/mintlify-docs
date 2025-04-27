@@ -1,0 +1,110 @@
+---
+title: 'Create Context Variable Definition'
+api: 'POST /api/v1/context-variables/create'
+description: 'Create a new context variable definition'
+---
+
+# Create Context Variable Definition
+
+Create a new context variable definition that can be used in contacts or your business profile.
+
+## Endpoint
+
+```
+POST /api/v1/context-variables/create
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_write_contacts` permission.
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | Yes | Variable name (API identifier, e.g., `last_payment_date`) |
+| `display_name` | string | Yes | User-friendly display name (e.g., "Last Payment Date") |
+| `description` | string | No | Optional description of the variable |
+| `variable_type` | string | Yes | Data type (text, number, date, boolean, select) |
+| `context_type` | string | Yes | Context type (contact, business) |
+| `select_options` | array | No | Available options for select type variables |
+
+### Example Request Body
+
+```json
+{
+  "name": "membership_level",
+  "display_name": "Membership Level",
+  "description": "Customer's membership tier",
+  "variable_type": "select",
+  "context_type": "contact",
+  "select_options": ["Bronze", "Silver", "Gold", "Platinum"]
+}
+```
+
+## Response
+
+```json
+{
+  "id": 3,
+  "name": "membership_level",
+  "display_name": "Membership Level",
+  "message": "Variable definition created successfully"
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `missing_parameter` | A required parameter is missing |
+| 400 | `duplicate_variable` | A variable with this name already exists |
+| 400 | `invalid_json` | Invalid JSON payload |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X POST 'https://api.klen.ai/api/v1/context-variables/create' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "membership_level",
+    "display_name": "Membership Level",
+    "description": "Customer'\''s membership tier",
+    "variable_type": "select",
+    "context_type": "contact",
+    "select_options": ["Bronze", "Silver", "Gold", "Platinum"]
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 3,
+  "name": "membership_level",
+  "display_name": "Membership Level",
+  "message": "Variable definition created successfully"
+}
+```
+
+## Valid Variable Types
+
+| Type | Description | Sample Values |
+|------|-------------|--------------|
+| `text` | Text strings | "Premium Support", "East Region" |
+| `number` | Numeric values | 42, 99.95, -10 |
+| `date` | Date values (stored in ISO format) | "2023-12-01", "2023-01-15T14:30:00Z" |
+| `boolean` | True/false values | true, false |
+| `select` | Value from predefined options | "Gold" (from provided options) |
+
+## Notes
+
+- Variable names should be lowercase, contain only letters, numbers, and underscores
+- Variable names must be unique within their context type for your account
+- For `select` type variables, you must provide an array of options in the `select_options` field
+- The variable definition will be created for the account associated with the API key

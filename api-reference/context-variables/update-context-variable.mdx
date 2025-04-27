@@ -1,0 +1,106 @@
+---
+title: 'Update Context Variable Definition'
+api: 'PUT /api/v1/context-variables/{variable_id}/update'
+description: 'Update an existing context variable definition'
+---
+
+# Update Context Variable Definition
+
+Update an existing context variable definition. You can update the display name, description, variable type, and select options.
+
+## Endpoint
+
+```
+PUT /api/v1/context-variables/{variable_id}/update
+```
+
+You can also use PATCH for partial updates:
+
+```
+PATCH /api/v1/context-variables/{variable_id}/update
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_write_contacts` permission.
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `variable_id` | integer | Yes | ID of the variable definition to update |
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `display_name` | string | No | User-friendly display name (e.g., "Last Payment Date") |
+| `description` | string | No | Optional description of the variable |
+| `variable_type` | string | No | Data type (text, number, date, boolean, select) |
+| `select_options` | array | No | Available options for select type variables |
+
+**Note:** The `name` and `context_type` fields cannot be changed after creation.
+
+### Example Request Body
+
+```json
+{
+  "display_name": "Updated Display Name",
+  "description": "Updated description",
+  "select_options": ["Option 1", "Option 2", "Option 3"]
+}
+```
+
+## Response
+
+```json
+{
+  "id": 3,
+  "name": "membership_level",
+  "display_name": "Updated Display Name",
+  "message": "Variable definition updated successfully"
+}
+```
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 400 | `invalid_json` | Invalid JSON payload |
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 404 | `not_found` | Variable definition not found |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+```bash
+curl -X PUT 'https://api.klen.ai/api/v1/context-variables/3/update' \
+  -H 'Authorization: Bearer klen_abcdef123456789' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "display_name": "Updated Display Name",
+    "description": "Updated description",
+    "select_options": ["Option 1", "Option 2", "Option 3"]
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "id": 3,
+  "name": "membership_level",
+  "display_name": "Updated Display Name",
+  "message": "Variable definition updated successfully"
+}
+```
+
+## Notes
+
+- You cannot update the `name` or `context_type` of an existing variable definition
+- If you need to change these, delete the existing definition and create a new one
+- When updating a `select` type variable, provide the complete array of options (not just new ones)
+- You can only update variable definitions that belong to your account
+- Default system variables (`is_default: true`) cannot be modified

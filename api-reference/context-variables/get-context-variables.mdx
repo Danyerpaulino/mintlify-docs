@@ -1,0 +1,145 @@
+---
+title: 'Get Context Variable Definitions'
+api: 'GET /api/v1/context-variables'
+description: 'Retrieve a list of context variable definitions for your account'
+---
+
+# Get Context Variable Definitions
+
+Retrieve all context variable definitions for your account. You can filter by context type to get only contact or business variables.
+
+## Endpoint
+
+```
+GET /api/v1/context-variables
+```
+
+## Authentication
+
+This endpoint requires an API key with the `can_read_contacts` permission.
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `context_type` | string | No | Filter by context type (contact/business) |
+
+## Response
+
+```json
+{
+  "count": 3,
+  "variables": [
+    {
+      "id": 1,
+      "name": "last_payment_date",
+      "display_name": "Last Payment Date",
+      "description": "Date of customer's last payment",
+      "variable_type": "date",
+      "context_type": "contact",
+      "is_default": false,
+      "select_options": null
+    },
+    {
+      "id": 2,
+      "name": "membership_level",
+      "display_name": "Membership Level",
+      "description": "Customer's current membership tier",
+      "variable_type": "select",
+      "context_type": "contact",
+      "is_default": false,
+      "select_options": ["Bronze", "Silver", "Gold", "Platinum"]
+    },
+    {
+      "id": 3,
+      "name": "support_hours",
+      "display_name": "Support Hours",
+      "description": "Business support hours",
+      "variable_type": "text",
+      "context_type": "business",
+      "is_default": true,
+      "select_options": null
+    }
+  ]
+}
+```
+
+## Response Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `count` | integer | Total number of variable definitions returned |
+| `variables` | array | Array of variable definition objects |
+
+### Variable Definition Object
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | integer | Unique identifier for the variable definition |
+| `name` | string | Variable name (API identifier, e.g., `last_payment_date`) |
+| `display_name` | string | User-friendly display name (e.g., "Last Payment Date") |
+| `description` | string | Optional description of the variable |
+| `variable_type` | string | Data type (text, number, date, boolean, select) |
+| `context_type` | string | Context type (contact, business) |
+| `is_default` | boolean | Whether this is a default system variable |
+| `select_options` | array | Available options for select type variables |
+
+## Error Codes
+
+| Status Code | Error Code | Description |
+|-------------|------------|-------------|
+| 401 | `authentication_required` | No API key was provided |
+| 401 | `invalid_key` | The API key is invalid or inactive |
+| 403 | `permission_denied` | The API key doesn't have the required permission |
+| 500 | `server_error` | An unexpected server error occurred |
+
+## Example Request
+
+### Filter by context type
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/context-variables?context_type=contact' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+### Get all variables
+
+```bash
+curl -X GET 'https://api.klen.ai/api/v1/context-variables' \
+  -H 'Authorization: Bearer klen_abcdef123456789'
+```
+
+## Example Response
+
+```json
+{
+  "count": 2,
+  "variables": [
+    {
+      "id": 1,
+      "name": "last_payment_date",
+      "display_name": "Last Payment Date",
+      "description": "Date of customer's last payment",
+      "variable_type": "date",
+      "context_type": "contact",
+      "is_default": false,
+      "select_options": null
+    },
+    {
+      "id": 2,
+      "name": "membership_level",
+      "display_name": "Membership Level",
+      "description": "Customer's current membership tier",
+      "variable_type": "select",
+      "context_type": "contact",
+      "is_default": false,
+      "select_options": ["Bronze", "Silver", "Gold", "Platinum"]
+    }
+  ]
+}
+```
+
+## Notes
+
+- Default variables (`is_default: true`) are system-provided variables that cannot be deleted
+- The response includes all variable definitions the authenticated user has access to, through direct ownership or team access
