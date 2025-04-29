@@ -1,0 +1,153 @@
+---
+title: 'Configuring AI Agents for Calendar Integration'
+description: 'Learn how to set up your AI agents to check availability and book appointments in your calendar'
+---
+
+# Configuring AI Agents for Calendar Integration
+
+<iframe 
+  className="w-full aspect-video rounded-md mb-8" 
+  src="https://www.loom.com/embed/680efab665a04efa94f2eaa0f969d218" 
+  frameBorder="0" 
+  allowFullScreen
+></iframe>
+
+This guide will walk you through the process of configuring your AI agents to check availability and book appointments in your Klen AI calendar system. With proper setup, your AI agents can seamlessly handle scheduling tasks during calls.
+
+## Prerequisites
+
+Before configuring your AI agents for calendar integration, ensure you have:
+
+- A Klen AI account with access to the dashboard
+- At least one AI agent created
+- Google Calendar or Outlook Calendar for integration (optional but recommended)
+
+## Calendar Integration
+
+The first step is to integrate your existing calendar system with Klen AI:
+
+1. Navigate to the **Calendar Settings** menu in your dashboard
+2. Choose your calendar provider (Google Calendar or Outlook)
+3. Follow the authorization steps to connect your calendar
+
+Once connected, Klen AI establishes a bi-directional sync with your calendar:
+- Events created in your external calendar will appear in Klen AI
+- Appointments booked by your AI agents will appear in your external calendar
+
+## Setting Your Availability
+
+Next, define when your AI agents can book appointments:
+
+1. Navigate to **Manage Availability** in your calendar dashboard
+2. Set your regular availability (e.g., Monday to Friday, 9 AM to 5 PM)
+3. Add any custom time blocks or exceptions as needed
+4. Click **Save Changes** to update your availability settings
+
+Your AI agents will only offer appointment times within these availability windows.
+
+## Configuring Time Zone Settings
+
+Ensure your time zone is correctly configured to prevent scheduling conflicts:
+
+1. Go to your **Profile Settings**
+2. Locate the **Time Zone** option
+3. Select your correct time zone from the dropdown menu
+4. Save your changes
+
+This setting is crucial as it determines how times are interpreted by your AI agents and calendar system.
+
+## Enabling AI Calendar Integration
+
+Now, configure which AI agents can access your calendar and book appointments:
+
+1. Navigate to **Calendar Dashboard** > **Configure AI Integration**
+2. Select the AI agent you want to enable for calendar access
+3. Configure the appointment settings:
+   - **Appointment Duration**: Default length for appointments (e.g., 30 minutes)
+   - **Minimum Notice Period**: How far in advance appointments can be booked (e.g., 2 hours)
+   - **Booking Window**: How many days ahead the AI can book (e.g., 14 days)
+4. Click **Save Configuration**
+
+## Configuring AI Agent Instructions
+
+For your AI agents to properly use the calendar tools, you must include specific tool references in their instructions:
+
+```
+[Task & Goals]
+Your main goal is to qualify the lead and book an appointment if they are interested.
+
+[Conversation Flow]
+...
+5. **Gather Required Information:** "To get that scheduled, I just need a few details."
+   * "Can I confirm your full name?" <wait>
+   * "What is the best phone number to reach you at?" <wait>
+   * "What is your email address?" (Optional) <wait>
+
+6. **Check Availability:** "Let me check the available times for our specialists."
+   * **Action:** Use the `check_availability` tool to find available appointment slots.
+7. **Offer Slots:** "I see a few options: [available times]. Does one of those times work for you?"
+   * <wait for user response>
+8. **Book Appointment:** "Alright, I have [selected time] selected for you. Let me confirm that booking."
+   * **Action:** Use the `book_appointment` tool, providing the selected time and customer details.
+```
+
+**Important Requirements:**
+1. The prompt must include `check_availability` and `book_appointment` references. These exact terms tell the AI agent when to call those calendar tools.
+2. The AI agent **must collect** the following required information for successful bookings:
+   - Customer's full name
+   - Valid phone number
+   - Selected appointment time
+3. Email address collection is optional:
+   - When collected, the system sends email confirmations to customers
+   - MUST be properly formatted to ensure calendar syncing with services like Google Calendar
+   - Without properly formatted email, there may be syncing issues with some calendar providers, as well as the email notification may not go out.
+
+## Testing Your Configuration
+
+After setting up your calendar integration and agent instructions:
+
+1. Make a test call to your AI agent
+2. Request to schedule an appointment
+3. Follow the agent's prompts to select an available time
+4. Confirm the appointment is created correctly in your calendar
+5. Verify that confirmation emails are sent with the correct details
+
+## Confirmation System
+
+When an appointment is successfully booked:
+
+- The AI agent will verbally confirm the booking details with the caller
+- An email confirmation will be sent to:
+  - The business owner/calendar owner (always)
+  - The client (if email was collected) with:
+    - Appointment date and time
+    - Appointment purpose/type
+    - Client details collected during the call
+    - Your business information
+- The appointment will be added to your connected calendar system with all collected information
+
+## Troubleshooting
+
+If you encounter issues with calendar integration:
+
+- Verify your calendar connection status in the dashboard
+- Check that your availability settings are correctly configured
+- Ensure your AI agent instructions include the required tool references
+- Confirm your time zone settings are accurate
+- Review your agent's conversation logs to identify any errors
+
+Common issues:
+
+- **Calendar Events Not Syncing**: Verify that the AI agent collected a properly formatted email address. Some calendar providers like Google Calendar require valid emails for proper syncing.
+- **Missing Required Fields**: If appointments aren't being booked successfully, check that your AI agent is collecting all required fields (name, phone number, and appointment time).
+- **Time Zone Conflicts**: Ensure your profile time zone matches your actual time zone to prevent scheduling conflicts.
+
+## Next Steps
+
+After configuring your AI agents for calendar integration, consider:
+
+- [Creating Context Variables](/api-reference/context-variables/overview) to personalize the scheduling experience
+- Setting up [Webhook Events](/api-reference/webhooks/calendar-events) to receive notifications about calendar activities
+- Exploring [Calendar API](/api-reference/calendar/overview) for programmatic access to your calendar system
+
+For additional assistance, contact our [support team](mailto:support@klen.ai).
